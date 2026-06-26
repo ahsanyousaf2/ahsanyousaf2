@@ -58,24 +58,28 @@ export async function removeBackground(
     const canvas = document.createElement("canvas");
     canvas.width = w;
     canvas.height = h;
-    canvas.getContext("2d")!.drawImage(bitmap, 0, 0);
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Could not get canvas context");
+    ctx.drawImage(bitmap, 0, 0);
     results = model.segment(canvas);
-  } catch {
-    bitmap.close();
+  } catch (err) {
+    console.error("segment failed:", err);
     const fbCanvas = document.createElement("canvas");
     fbCanvas.width = w;
     fbCanvas.height = h;
     fbCanvas.getContext("2d")!.drawImage(bitmap, 0, 0);
+    bitmap.close();
     return new Promise((r) => fbCanvas.toBlob((b) => r(b!), "image/png"));
   }
 
   const mask = results.confidenceMasks?.[1] || results.categoryMask;
   if (!mask) {
-    bitmap.close();
+    console.warn("no mask found in segmentation result");
     const fbCanvas = document.createElement("canvas");
     fbCanvas.width = w;
     fbCanvas.height = h;
     fbCanvas.getContext("2d")!.drawImage(bitmap, 0, 0);
+    bitmap.close();
     return new Promise((r) => fbCanvas.toBlob((b) => r(b!), "image/png"));
   }
 
@@ -89,16 +93,25 @@ export async function removeBackground(
 
   const imageData = rctx.getImageData(0, 0, w, h);
   const pixels = imageData.data;
-  const isCategory = !results.confidenceMasks;
 
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      const mx = Math.round((x / w) * mw);
-      const my = Math.round((y / h) * mh);
-      const mi = my * mw + mx;
-      let alpha = maskData[mi] ?? 0;
-      if (isCategory) alpha = alpha > 0 ? 255 : 0;
-      pixels[(y * w + x) * 4 + 3] = Math.round(Math.max(0, Math.min(255, alpha * 255)));
+  if (results.confidenceMasks) {
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const mx = Math.round((x / w) * mw);
+        const my = Math.round((y / h) * mh);
+        const mi = my * mw + mx;
+        const alpha = maskData[mi] ?? 0;
+        pixels[(y * w + x) * 4 + 3] = Math.round(Math.max(0, Math.min(255, alpha * 255)));
+      }
+    }
+  } else {
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const mx = Math.round((x / w) * mw);
+        const my = Math.round((y / h) * mh);
+        const mi = my * mw + mx;
+        pixels[(y * w + x) * 4 + 3] = maskData[mi] > 0 ? 255 : 0;
+      }
     }
   }
 

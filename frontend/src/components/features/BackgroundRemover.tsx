@@ -23,7 +23,9 @@ export function BackgroundRemover() {
 
   useEffect(() => {
     onModelProgress((pct) => setModelProgress(pct));
-    preloadModel().finally(() => setModelLoading(false));
+    preloadModel()
+      .catch(() => {})
+      .finally(() => setModelLoading(false));
   }, []);
 
   const handleImageSelect = useCallback((file: File) => {
