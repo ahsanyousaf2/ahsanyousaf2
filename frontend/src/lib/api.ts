@@ -7,6 +7,10 @@ async function getXenova() {
     xenovaModule = await import("@xenova/transformers");
     xenovaModule.env.allowLocalModels = false;
     xenovaModule.env.useBrowserCache = true;
+    try {
+      const wasmPath = "https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2/dist/";
+      xenovaModule.env.backends.onnx.wasm.wasmPaths = wasmPath;
+    } catch {}
   }
   return xenovaModule;
 }
