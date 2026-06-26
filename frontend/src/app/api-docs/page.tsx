@@ -37,14 +37,14 @@ export default function ApiDocsPage() {
       <div className="mb-12">
         <h1 className="text-4xl font-bold">Client-Side API</h1>
         <p className="mt-4 text-lg text-[rgb(var(--muted-foreground))]">
-          Background removal runs entirely in the browser using the U2Net deep learning model via ONNX Runtime Web.
+          Background removal runs entirely in the browser using the MediaPipe Selfie Segmenter model via WebAssembly.
           No server required.
         </p>
       </div>
 
       <div className="mb-8 rounded-xl border bg-[rgb(var(--card))] p-6">
         <h2 className="mb-2 text-lg font-semibold">Installation</h2>
-        <CodeBlock code={`npm install @xenova/transformers`} language="bash" />
+        <CodeBlock code={`npm install @mediapipe/tasks-vision`} language="bash" />
       </div>
 
       <div className="space-y-8">

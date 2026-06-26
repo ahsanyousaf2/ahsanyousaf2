@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Mail, MessageSquare, Send } from "lucide-react";
+import { Mail, MessageSquare, Send, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
@@ -67,6 +68,12 @@ export default function ContactPage() {
             </form>
           )}
         </div>
+      </div>
+
+      <div className="mt-12 text-center">
+        <Link href="/dashboard" className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary-600 to-purple-600 px-8 py-3.5 text-base font-semibold text-white shadow-lg transition-all hover:from-primary-500 hover:to-purple-500">
+          Try It Free <ArrowRight className="h-5 w-5" />
+        </Link>
       </div>
     </div>
   );

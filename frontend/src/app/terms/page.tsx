@@ -1,3 +1,6 @@
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+
 export default function TermsPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
@@ -26,7 +29,7 @@ export default function TermsPage() {
           <h2 className="text-xl font-semibold text-[rgb(var(--foreground))]">Intellectual Property</h2>
           <p className="mt-2">
             You retain all rights to your images and their processed outputs. The background removal
-            technology (U2Net model, ONNX Runtime, Xenova Transformers) is open-source and used under
+            technology (MediaPipe Selfie Segmenter) is open-source and used under
             their respective licenses.
           </p>
         </section>
@@ -47,6 +50,12 @@ export default function TermsPage() {
             with an updated date.
           </p>
         </section>
+      </div>
+
+      <div className="mt-12 text-center">
+        <Link href="/dashboard" className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary-600 to-purple-600 px-8 py-3.5 text-base font-semibold text-white shadow-lg transition-all hover:from-primary-500 hover:to-purple-500">
+          Remove Background Now <ArrowRight className="h-5 w-5" />
+        </Link>
       </div>
     </div>
   );

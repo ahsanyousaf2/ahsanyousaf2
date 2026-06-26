@@ -41,6 +41,12 @@ export default function BlogPage() {
           </article>
         ))}
       </div>
+
+      <div className="mt-12 text-center">
+        <Link href="/dashboard" className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary-600 to-purple-600 px-8 py-3.5 text-base font-semibold text-white shadow-lg transition-all hover:from-primary-500 hover:to-purple-500">
+          Remove Background Now <ArrowRight className="h-5 w-5" />
+        </Link>
+      </div>
     </div>
   );
 }
