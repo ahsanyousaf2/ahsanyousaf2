@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.so
+.env
+.venv/
+venv/
+*.egg
+
+# Node
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Uploads/Outputs
+uploads/
+outputs/
+tmp/
+logs/
+models/cache/
+
+# Docker
+docker/ssl/
+
+# Environment
+.env.local
+.env.production
+
+# Coverage
+coverage/
+coverage.xml
+htmlcov/
