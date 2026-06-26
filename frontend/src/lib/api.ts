@@ -1,10 +1,15 @@
-import { pipeline, env, RawImage } from "@xenova/transformers";
-
-env.allowLocalModels = false;
-env.useBrowserCache = true;
-
+let xenovaModule: any = null;
 let segmenter: any = null;
 let progressCallback: ((pct: number) => void) | null = null;
+
+async function getXenova() {
+  if (!xenovaModule) {
+    xenovaModule = await import("@xenova/transformers");
+    xenovaModule.env.allowLocalModels = false;
+    xenovaModule.env.useBrowserCache = true;
+  }
+  return xenovaModule;
+}
 
 export function onModelProgress(fn: (pct: number) => void) {
   progressCallback = fn;
@@ -16,7 +21,8 @@ function progressHook(pct: number) {
 
 async function getSegmenter() {
   if (!segmenter) {
-    segmenter = await pipeline("image-segmentation", "Xenova/u2net", {
+    const xenova = await getXenova();
+    segmenter = await xenova.pipeline("image-segmentation", "Xenova/u2net", {
       progress_callback: (data: any) => {
         if (data.status === "progress") {
           progressHook(data.progress);
@@ -73,7 +79,8 @@ export async function removeBackground(
   }
 ): Promise<Blob> {
   const model = await getSegmenter();
-  const img = await RawImage.read(file);
+  const xenova = await getXenova();
+  const img = await xenova.RawImage.read(file);
   const origW = img.width;
   const origH = img.height;
 
