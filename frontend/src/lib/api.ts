@@ -13,7 +13,7 @@ async function getSegmenter() {
   if (!segmenter) {
     const { FilesetResolver, ImageSegmenter } = await import("@mediapipe/tasks-vision");
     const wasmFileset = await FilesetResolver.forVisionTasks(
-      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.15/wasm/"
+      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.35/wasm/"
     );
     segmenter = await ImageSegmenter.createFromOptions(wasmFileset, {
       baseOptions: {
