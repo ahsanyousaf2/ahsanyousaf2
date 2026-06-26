@@ -79,6 +79,73 @@ function applyMask(
   return new Promise((resolve) => canvas.toBlob((b) => resolve(b!), "image/png"));
 }
 
+function contrastCurve(val: number, strength = 2.5): number {
+  return 1 - Math.pow(1 - val, strength);
+}
+
+function sharpenMask(data: Uint8ClampedArray, w: number, h: number, threshold = 0.15) {
+  const out = new Float32Array(w * h);
+  for (let i = 0; i < w * h; i++) out[i] = data[i * 4] / 255;
+
+  const blurred = new Float32Array(w * h);
+  const kernel = [1, 1, 1, 1, 2, 1, 1, 1, 1];
+  const ksum = 10;
+
+  for (let y = 1; y < h - 1; y++) {
+    for (let x = 1; x < w - 1; x++) {
+      let sum = 0;
+      for (let ky = -1; ky <= 1; ky++) {
+        for (let kx = -1; kx <= 1; kx++) {
+          sum += out[(y + ky) * w + (x + kx)] * kernel[(ky + 1) * 3 + (kx + 1)];
+        }
+      }
+      blurred[y * w + x] = sum / ksum;
+    }
+  }
+
+  for (let i = 0; i < w * h; i++) {
+    const diff = out[i] - blurred[i];
+    const sharpened = out[i] + diff * 0.8;
+    out[i] = Math.max(0, Math.min(1, sharpened));
+  }
+
+  for (let i = 0; i < w * h; i++) {
+    const v = Math.round(out[i] * 255);
+    data[i * 4] = v;
+    data[i * 4 + 1] = v;
+    data[i * 4 + 2] = v;
+  }
+}
+
+function featherEdges(data: Uint8ClampedArray, w: number, h: number, radius = 1) {
+  const temp = new Float32Array(w * h);
+  const vals = new Float32Array(w * h);
+  for (let i = 0; i < w * h; i++) vals[i] = data[i * 4] / 255;
+
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      let sum = 0, count = 0;
+      for (let dy = -radius; dy <= radius; dy++) {
+        for (let dx = -radius; dx <= radius; dx++) {
+          const cx = x + dx, cy = y + dy;
+          if (cx >= 0 && cx < w && cy >= 0 && cy < h) {
+            sum += vals[cy * w + cx];
+            count++;
+          }
+        }
+      }
+      temp[y * w + x] = sum / count;
+    }
+  }
+
+  for (let i = 0; i < w * h; i++) {
+    const v = Math.round(temp[i] * 255);
+    data[i * 4] = v;
+    data[i * 4 + 1] = v;
+    data[i * 4 + 2] = v;
+  }
+}
+
 export async function removeBackground(
   file: File,
   options?: {
@@ -107,13 +174,44 @@ export async function removeBackground(
   const imageData = ctx.createImageData(width, height);
   const data = imageData.data;
 
-  const toTensor = maskOutput.data || maskOutput;
-  for (let i = 0; i < width * height; i++) {
-    const val = Math.round((toTensor[i] ?? 0) * 255);
-    data[i * 4] = val;
-    data[i * 4 + 1] = val;
-    data[i * 4 + 2] = val;
-    data[i * 4 + 3] = 255;
+  const raw = maskOutput.data || maskOutput;
+  const isRawImage = raw instanceof Uint8Array || raw instanceof Uint8ClampedArray;
+  const isFloat = raw instanceof Float32Array || raw instanceof Float64Array;
+
+  if (isRawImage) {
+    for (let i = 0; i < width * height; i++) {
+      const val = raw[i * 4] ?? raw[i] ?? 0;
+      const normalized = val / 255;
+      const boosted = contrastCurve(normalized);
+      const final = Math.round(boosted * 255);
+      data[i * 4] = final;
+      data[i * 4 + 1] = final;
+      data[i * 4 + 2] = final;
+      data[i * 4 + 3] = 255;
+    }
+  } else if (isFloat) {
+    for (let i = 0; i < width * height; i++) {
+      const val = raw[i] ?? 0;
+      const boosted = contrastCurve(val);
+      const final = Math.round(boosted * 255);
+      data[i * 4] = final;
+      data[i * 4 + 1] = final;
+      data[i * 4 + 2] = final;
+      data[i * 4 + 3] = 255;
+    }
+  } else {
+    for (let i = 0; i < width * height; i++) {
+      const val = Math.round((raw[i] ?? 0) * 255);
+      data[i * 4] = val;
+      data[i * 4 + 1] = val;
+      data[i * 4 + 2] = val;
+      data[i * 4 + 3] = 255;
+    }
+  }
+
+  if (options?.edgeRefinement !== false) {
+    sharpenMask(data, width, height);
+    featherEdges(data, width, height, 2);
   }
 
   ctx.putImageData(imageData, 0, 0);
@@ -128,11 +226,12 @@ export async function removeBackground(
 
   const finalData = rctx.getImageData(0, 0, img.width, img.height);
 
-  const maskData = ctx.getImageData(0, 0, width, height);
   const tempCanvas = document.createElement("canvas");
   tempCanvas.width = img.width;
   tempCanvas.height = img.height;
   const tctx = tempCanvas.getContext("2d")!;
+  tctx.imageSmoothingEnabled = true;
+  tctx.imageSmoothingQuality = "high";
   tctx.drawImage(maskCanvas, 0, 0, img.width, img.height);
   const resizedMask = tctx.getImageData(0, 0, img.width, img.height);
 

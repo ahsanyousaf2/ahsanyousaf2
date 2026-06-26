@@ -4,27 +4,27 @@ const features = [
   {
     icon: Zap,
     title: "AI-Powered",
-    description: "Powered by BiRefNet + RMBG-2.0 with multi-stage edge refinement for professional results.",
+    description: "Powered by U2Net deep learning model with contrast-enhanced edge refinement for professional results.",
   },
   {
     icon: Shield,
     title: "High Quality",
-    description: "Preserve hair strands, fur details, and transparent objects with alpha matting.",
+    description: "Preserve hair strands and fine details with smart mask sharpening and feathering.",
   },
   {
     icon: Image,
-    title: "Batch Processing",
-    description: "Process multiple images simultaneously with our batch API endpoint.",
+    title: "Instant Preview",
+    description: "See the result immediately with side-by-side comparison to your original image.",
   },
   {
     icon: Layers,
     title: "Edge Refinement",
-    description: "Multi-stage pipeline with anti-halo correction and hair detail enhancement.",
+    description: "Automatic anti-halo correction and detail enhancement for clean, natural edges.",
   },
   {
     icon: Palette,
     title: "Background Replace",
-    description: "Replace with solid colors, gradients, images, or blur effects.",
+    description: "Replace with solid colors, blur effects, or keep it transparent.",
   },
   {
     icon: Download,

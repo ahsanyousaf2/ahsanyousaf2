@@ -16,23 +16,23 @@ export function Footer() {
           <div>
             <h3 className="text-sm font-semibold">Company</h3>
             <ul className="mt-4 space-y-2">
-              <li><span className="text-sm text-[rgb(var(--muted-foreground))]">About</span></li>
-              <li><span className="text-sm text-[rgb(var(--muted-foreground))]">Blog</span></li>
-              <li><span className="text-sm text-[rgb(var(--muted-foreground))]">Contact</span></li>
+              <li><Link href="/about" className="text-sm text-[rgb(var(--muted-foreground))] hover:text-[rgb(var(--foreground))]">About</Link></li>
+              <li><Link href="/blog" className="text-sm text-[rgb(var(--muted-foreground))] hover:text-[rgb(var(--foreground))]">Blog</Link></li>
+              <li><Link href="/contact" className="text-sm text-[rgb(var(--muted-foreground))] hover:text-[rgb(var(--foreground))]">Contact</Link></li>
             </ul>
           </div>
           <div>
             <h3 className="text-sm font-semibold">Legal</h3>
             <ul className="mt-4 space-y-2">
-              <li><span className="text-sm text-[rgb(var(--muted-foreground))]">Privacy</span></li>
-              <li><span className="text-sm text-[rgb(var(--muted-foreground))]">Terms</span></li>
+              <li><Link href="/privacy" className="text-sm text-[rgb(var(--muted-foreground))] hover:text-[rgb(var(--foreground))]">Privacy</Link></li>
+              <li><Link href="/terms" className="text-sm text-[rgb(var(--muted-foreground))] hover:text-[rgb(var(--foreground))]">Terms</Link></li>
             </ul>
           </div>
           <div>
-            <h3 className="text-sm font-semibold">Powered by</h3>
+            <h3 className="text-sm font-semibold">Tech</h3>
             <ul className="mt-4 space-y-2">
-              <li><span className="text-sm text-[rgb(var(--muted-foreground))]">Client-Side AI</span></li>
-              <li><span className="text-sm text-[rgb(var(--muted-foreground))]">ONNX + WebAssembly</span></li>
+              <li><span className="text-sm text-[rgb(var(--muted-foreground))]">U2Net + ONNX Runtime</span></li>
+              <li><span className="text-sm text-[rgb(var(--muted-foreground))]">100% Client-Side</span></li>
             </ul>
           </div>
         </div>
