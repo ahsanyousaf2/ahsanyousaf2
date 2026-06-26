@@ -1,4 +1,4 @@
-import { pipeline, env } from "@xenova/transformers";
+import { pipeline, env, RawImage } from "@xenova/transformers";
 
 env.allowLocalModels = false;
 env.useBrowserCache = true;
@@ -38,21 +38,6 @@ function createCanvas(w: number, h: number) {
   return { canvas: c, ctx: c.getContext("2d")! };
 }
 
-async function imageToBlob(img: HTMLImageElement): Promise<Blob> {
-  const { canvas, ctx } = createCanvas(img.width, img.height);
-  ctx.drawImage(img, 0, 0);
-  return new Promise((resolve) => canvas.toBlob((b) => resolve(b!), "image/png"));
-}
-
-async function fileToImage(file: File): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = reject;
-    img.src = URL.createObjectURL(file);
-  });
-}
-
 function readMaskPixels(raw: any, channels: number, len: number): Float32Array {
   const out = new Float32Array(len);
   const isFloat = raw instanceof Float32Array || raw instanceof Float64Array;
@@ -88,23 +73,42 @@ export async function removeBackground(
   }
 ): Promise<Blob> {
   const model = await getSegmenter();
-  const img = await fileToImage(file);
+  const img = await RawImage.read(file);
+  const origW = img.width;
+  const origH = img.height;
 
-  const results = await model(img);
-  let maskOutput = null;
-  for (const r of results) {
+  let results;
+  try {
+    results = await model(img);
+  } catch {
+    const canvas = document.createElement("canvas");
+    canvas.width = origW;
+    canvas.height = origH;
+    canvas.getContext("2d")!.drawImage(await createImageBitmap(file), 0, 0);
+    return new Promise((r) => canvas.toBlob((b) => r(b!), "image/png"));
+  }
+
+  const resultsArr = Array.isArray(results) ? results : [results];
+  let maskOutput: any = null;
+  for (const r of resultsArr) {
     if (r.label !== "background") {
       maskOutput = r.mask;
       break;
     }
   }
-  if (!maskOutput) maskOutput = results[0]?.mask;
-  if (!maskOutput) return imageToBlob(img);
+  if (!maskOutput) maskOutput = resultsArr[0]?.mask;
+  if (!maskOutput) {
+    const canvas = document.createElement("canvas");
+    canvas.width = origW;
+    canvas.height = origH;
+    canvas.getContext("2d")!.drawImage(await createImageBitmap(file), 0, 0);
+    return new Promise((r) => canvas.toBlob((b) => r(b!), "image/png"));
+  }
 
-  const mw = maskOutput.width || maskOutput.dims?.[1] || maskOutput.dims?.[3];
-  const mh = maskOutput.height || maskOutput.dims?.[0] || maskOutput.dims?.[2];
-  const w = typeof mw === "number" ? mw : (maskOutput.dims?.[3] ?? 320);
-  const h = typeof mh === "number" ? mh : (maskOutput.dims?.[2] ?? 320);
+  const mw = maskOutput.width || maskOutput.dims?.[3];
+  const mh = maskOutput.height || maskOutput.dims?.[2];
+  const w = typeof mw === "number" ? mw : 320;
+  const h = typeof mh === "number" ? mh : 320;
   const channels = maskOutput.channels || 1;
   const raw = maskOutput.data || maskOutput;
   const pixels = readMaskPixels(raw, channels, w * h);
@@ -116,10 +120,12 @@ export async function removeBackground(
   const imageData = ctx.createImageData(w, h);
   const data = imageData.data;
 
-  const upper = pixels.reduce((a, b) => Math.max(a, b), 0);
-  const lower = pixels.reduce((a, b) => Math.min(a, b), 1);
-  const mean = pixels.reduce((s, v) => s + v, 0) / pixels.length;
-
+  let upper = 0, lower = 1;
+  for (let i = 0; i < w * h; i++) {
+    if (pixels[i] > upper) upper = pixels[i];
+    if (pixels[i] < lower) lower = pixels[i];
+  }
+  const mean = pixels.reduce((s, v) => s + v, 0) / (w * h);
   const inverted = mean > 0.6;
   const threshold = Math.max(0.05, lower + (upper - lower) * 0.1);
 
@@ -138,25 +144,27 @@ export async function removeBackground(
   ctx.putImageData(imageData, 0, 0);
 
   const resultCanvas = document.createElement("canvas");
-  resultCanvas.width = img.width;
-  resultCanvas.height = img.height;
+  resultCanvas.width = origW;
+  resultCanvas.height = origH;
   const rctx = resultCanvas.getContext("2d")!;
   rctx.imageSmoothingEnabled = true;
   rctx.imageSmoothingQuality = "high";
 
   const tempCanvas = document.createElement("canvas");
-  tempCanvas.width = img.width;
-  tempCanvas.height = img.height;
+  tempCanvas.width = origW;
+  tempCanvas.height = origH;
   const tctx = tempCanvas.getContext("2d")!;
   tctx.imageSmoothingEnabled = true;
   tctx.imageSmoothingQuality = "high";
-  tctx.drawImage(maskCanvas, 0, 0, img.width, img.height);
-  const resizedMask = tctx.getImageData(0, 0, img.width, img.height);
+  tctx.drawImage(maskCanvas, 0, 0, origW, origH);
+  const resizedMask = tctx.getImageData(0, 0, origW, origH);
 
-  rctx.drawImage(img, 0, 0);
+  const bitmap = await createImageBitmap(file);
+  rctx.drawImage(bitmap, 0, 0);
+  bitmap.close();
 
-  const finalData = rctx.getImageData(0, 0, img.width, img.height);
-  for (let i = 0; i < img.width * img.height; i++) {
+  const finalData = rctx.getImageData(0, 0, origW, origH);
+  for (let i = 0; i < origW * origH; i++) {
     finalData.data[i * 4 + 3] = resizedMask.data[i * 4];
   }
   rctx.putImageData(finalData, 0, 0);
