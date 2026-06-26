@@ -1,26 +1,20 @@
+"use client";
+
+import { FilesetResolver, ImageSegmenter } from "@mediapipe/tasks-vision";
+
 let segmenter: any = null;
 let progressCallback: ((pct: number) => void) | null = null;
-
-function getApiBase(): string | undefined {
-  if (typeof process !== "undefined" && process.env?.NEXT_PUBLIC_API_URL) {
-    return process.env.NEXT_PUBLIC_API_URL;
-  }
-  return undefined;
-}
 
 export function onModelProgress(fn: (pct: number) => void) {
   progressCallback = fn;
 }
 
-function progressHook(pct: number) {
-  progressCallback?.(Math.round(pct * 100));
-}
-
 async function getSegmenter() {
-  if (!segmenter) {
-    const { FilesetResolver, ImageSegmenter } = await import("@mediapipe/tasks-vision");
+  if (segmenter) return segmenter;
+
+  try {
     const wasmFileset = await FilesetResolver.forVisionTasks(
-      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm/"
+      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.35/wasm/"
     );
     segmenter = await ImageSegmenter.createFromOptions(wasmFileset, {
       baseOptions: {
@@ -31,9 +25,12 @@ async function getSegmenter() {
       outputCategoryMask: true,
       outputConfidenceMasks: true,
     });
-    progressHook(100);
+    progressCallback?.(100);
+    return segmenter;
+  } catch (err) {
+    console.error("MediaPipe init failed:", err);
+    throw new Error("Failed to load AI model. Check console for details.");
   }
-  return segmenter;
 }
 
 export async function preloadModel() {
@@ -76,29 +73,6 @@ function applyMaskToImage(bitmap: ImageBitmap, maskData: Float32Array, mw: numbe
   return new Promise((r) => canvas.toBlob((b) => r(b!), "image/png"));
 }
 
-async function removeBgViaApi(file: File): Promise<Blob | null> {
-  const base = getApiBase();
-  if (!base) return null;
-
-  const form = new FormData();
-  form.append("file", file);
-
-  try {
-    const res = await fetch(`${base}/remove-background`, {
-      method: "POST",
-      body: form,
-    });
-    if (!res.ok) {
-      console.warn("API returned", res.status, await res.text());
-      return null;
-    }
-    return await res.blob();
-  } catch (err) {
-    console.warn("API call failed, falling back to client-side", err);
-    return null;
-  }
-}
-
 async function removeBgClientSide(file: File): Promise<Blob> {
   const model = await getSegmenter();
   const bitmap = await createImageBitmap(file);
@@ -136,16 +110,8 @@ async function removeBgClientSide(file: File): Promise<Blob> {
       results = model.segment(img);
       URL.revokeObjectURL(blobUrl);
     } catch (err2) {
-      console.error("MediaPipe segment(img) failed:", err2);
-      try {
-        const offscreen = new OffscreenCanvas(cw, ch);
-        const octx = offscreen.getContext("2d")!;
-        octx.drawImage(bitmap, 0, 0, cw, ch);
-        results = model.segment(offscreen as unknown as HTMLCanvasElement);
-      } catch (err3) {
-        console.error("MediaPipe all attempts failed:", err3);
-        return renderFallback(bitmap);
-      }
+      console.error("MediaPipe all attempts failed:", err2);
+      return renderFallback(bitmap);
     }
   }
 
@@ -185,10 +151,8 @@ async function removeBgClientSide(file: File): Promise<Blob> {
 
 export async function removeBackground(
   file: File,
-  options?: { preserveShadows?: boolean; edgeRefinement?: boolean; outputFormat?: string; highResolution?: boolean }
+  _options?: { preserveShadows?: boolean; edgeRefinement?: boolean; outputFormat?: string; highResolution?: boolean }
 ): Promise<Blob> {
-  const apiResult = await removeBgViaApi(file);
-  if (apiResult) return apiResult;
   return removeBgClientSide(file);
 }
 
@@ -196,23 +160,6 @@ export async function replaceBackground(
   file: File,
   options: { backgroundType: string; color?: { r: number; g: number; b: number }; blurStrength?: number; preserveShadows?: boolean }
 ): Promise<Blob> {
-  const base = getApiBase();
-  if (base) {
-    const form = new FormData();
-    form.append("file", file);
-    form.append("background_type", options.backgroundType);
-    if (options.color) {
-      form.append("color_r", String(options.color.r));
-      form.append("color_g", String(options.color.g));
-      form.append("color_b", String(options.color.b));
-    }
-    if (options.blurStrength) form.append("blur_strength", String(options.blurStrength));
-    try {
-      const res = await fetch(`${base}/replace-background`, { method: "POST", body: form });
-      if (res.ok) return await res.blob();
-    } catch {}
-  }
-
   const noBg = await removeBgClientSide(file);
   const bitmap = await createImageBitmap(noBg);
   const { canvas, ctx } = createCanvas(bitmap.width, bitmap.height);
