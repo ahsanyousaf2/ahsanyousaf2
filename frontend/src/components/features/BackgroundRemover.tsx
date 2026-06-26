@@ -115,7 +115,7 @@ export function BackgroundRemover() {
                 <div className="h-2 w-48 overflow-hidden rounded-full bg-[rgb(var(--muted))]">
                   <div className="h-full rounded-full bg-gradient-to-r from-primary-500 to-purple-600 transition-all duration-300" style={{ width: `${modelProgress}%` }} />
                 </div>
-                <p className="text-xs text-[rgb(var(--muted-foreground))]">U2Net model (~20MB) - cached after first load</p>
+                <p className="text-xs text-[rgb(var(--muted-foreground))]">MediaPipe Selfie Segmenter (~12MB) - cached after first load</p>
               </div>
             ) : isProcessing ? (
               <div className="flex flex-col items-center gap-3">

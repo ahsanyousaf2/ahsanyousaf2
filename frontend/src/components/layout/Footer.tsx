@@ -32,7 +32,7 @@ export function Footer() {
           <div>
             <h3 className="text-sm font-semibold">Tech</h3>
             <ul className="mt-4 space-y-2">
-              <li><span className="text-sm text-[rgb(var(--muted-foreground))]">U2Net + ONNX Runtime</span></li>
+              <li><span className="text-sm text-[rgb(var(--muted-foreground))]">MediaPipe Selfie Segmenter</span></li>
               <li><span className="text-sm text-[rgb(var(--muted-foreground))]">100% Client-Side</span></li>
             </ul>
           </div>
