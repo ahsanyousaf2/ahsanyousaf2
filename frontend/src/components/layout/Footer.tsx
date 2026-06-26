@@ -10,6 +10,7 @@ export function Footer() {
             <ul className="mt-4 space-y-2">
               <li><Link href="/dashboard" className="text-sm text-[rgb(var(--muted-foreground))] hover:text-[rgb(var(--foreground))]">Dashboard</Link></li>
               <li><Link href="/api-docs" className="text-sm text-[rgb(var(--muted-foreground))] hover:text-[rgb(var(--foreground))]">API</Link></li>
+              <li><Link href="/how-it-works" className="text-sm text-[rgb(var(--muted-foreground))] hover:text-[rgb(var(--foreground))]">How It Works</Link></li>
 
             </ul>
           </div>

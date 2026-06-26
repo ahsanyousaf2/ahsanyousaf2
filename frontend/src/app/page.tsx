@@ -14,12 +14,12 @@ const features = [
   {
     icon: Image,
     title: "AI-Powered Segmentation",
-    desc: "Uses U2Net deep learning model for precise subject detection and background removal.",
+    desc: "Uses MediaPipe Selfie Segmenter for precise subject detection and background removal.",
   },
   {
     icon: Zap,
     title: "Instant Processing",
-    desc: "Runs entirely in your browser using ONNX + WebAssembly. No uploads, no waiting.",
+    desc: "Runs entirely in your browser using WebAssembly + WebGL. No uploads, no waiting.",
   },
   {
     icon: Shield,
@@ -72,7 +72,7 @@ export default function Home() {
                 Remove Background Now <ArrowRight className="h-5 w-5" />
               </Link>
               <Link
-                href="/api-docs"
+                href="/how-it-works"
                 className="inline-flex items-center gap-2 rounded-xl border bg-[rgb(var(--card))] px-8 py-3.5 text-base font-semibold transition-colors hover:bg-[rgb(var(--muted))]"
               >
                 How It Works
@@ -103,7 +103,7 @@ export default function Home() {
         <div className="grid gap-8 md:grid-cols-3">
           {[
             { step: "1", title: "Upload Image", desc: "Select any image from your device. Supports JPG, PNG, and WEBP formats up to 20MB." },
-            { step: "2", title: "AI Processing", desc: "Our U2Net model runs in your browser to detect and separate the subject from the background." },
+            { step: "2", title: "AI Processing", desc: "MediaPipe's AI model runs in your browser to detect and separate the subject from the background." },
             { step: "3", title: "Download Result", desc: "Get your image with a transparent background as a high-quality PNG file." },
           ].map((item) => (
             <div key={item.step} className="rounded-xl border bg-[rgb(var(--card))] p-6 text-center">
