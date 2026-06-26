@@ -20,12 +20,12 @@ export async function removeBackground(
 ): Promise<Blob> {
   await preloadModel();
 
-  const format = options?.outputFormat || "png";
   const quality = options?.highResolution ? 1.0 : 0.8;
 
   const blob = await imglyRemoveBackground(file, {
     output: {
-      format: { quality, type: format as "png" | "jpeg" | "webp" },
+      format: "image/png" as const,
+      quality,
     },
   });
 
@@ -45,7 +45,8 @@ export async function replaceBackground(
 
   const blob = await imglyRemoveBackground(file, {
     output: {
-      format: { quality: 1.0, type: "png" },
+      format: "image/png" as const,
+      quality: 1.0,
     },
   });
 
