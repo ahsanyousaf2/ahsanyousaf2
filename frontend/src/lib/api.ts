@@ -1,15 +1,32 @@
+const IMGLY_CDN = "https://staticimgly.com/@imgly/background-removal-data/1.7.0/dist/";
+
 let modelLoaded = false;
+let _onProgress: ((pct: number) => void) | null = null;
+
+export function onModelProgress(fn: (pct: number) => void) {
+  _onProgress = fn;
+}
 
 async function getImgly() {
-  const mod = await import("@imgly/background-removal");
+  const mod = await import(
+    /* webpackIgnore: true */
+    "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/dist/index.mjs"
+  );
   return mod;
 }
 
 export async function preloadModel() {
   if (!modelLoaded) {
     const { preload } = await getImgly();
-    await preload();
+    await preload({
+      publicPath: IMGLY_CDN,
+      progress: (_key: string, current: number, total: number) => {
+        const pct = total > 0 ? Math.round((current / total) * 100) : 0;
+        _onProgress?.(pct);
+      },
+    });
     modelLoaded = true;
+    _onProgress?.(100);
   }
 }
 
@@ -28,6 +45,7 @@ export async function removeBackground(
   const quality = options?.highResolution ? 1.0 : 0.8;
 
   return removeBg(file, {
+    publicPath: IMGLY_CDN,
     output: {
       format: "image/png",
       quality,
@@ -48,6 +66,7 @@ export async function replaceBackground(
 
   const { removeBackground: removeBg } = await getImgly();
   const blob = await removeBg(file, {
+    publicPath: IMGLY_CDN,
     output: {
       format: "image/png",
       quality: 1.0,
@@ -96,7 +115,13 @@ export async function batchRemoveBackground(
   await preloadModel();
   const { removeBackground: removeBg } = await getImgly();
 
-  const results = await Promise.all(files.map((file) => removeBg(file)));
+  const results = await Promise.all(
+    files.map((file) =>
+      removeBg(file, {
+        publicPath: IMGLY_CDN,
+      })
+    )
+  );
 
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d")!;

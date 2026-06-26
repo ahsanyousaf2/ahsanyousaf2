@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { ImageUploader } from "./ImageUploader";
 import { ProcessingResult } from "@/types";
-import { removeBackground, replaceBackground, preloadModel } from "@/lib/api";
+import { removeBackground, replaceBackground, preloadModel, onModelProgress } from "@/lib/api";
 import { Loader2, Download, Check, Palette, Eye, Wifi } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -13,6 +13,7 @@ export function BackgroundRemover() {
   const [result, setResult] = useState<ProcessingResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [modelLoading, setModelLoading] = useState(true);
+  const [modelProgress, setModelProgress] = useState(0);
   const [preserveShadows, setPreserveShadows] = useState(false);
   const [edgeRefinement, setEdgeRefinement] = useState(true);
   const [highResolution, setHighResolution] = useState(true);
@@ -21,6 +22,7 @@ export function BackgroundRemover() {
   const [bgColor, setBgColor] = useState("#000000");
 
   useEffect(() => {
+    onModelProgress((pct) => setModelProgress(pct));
     preloadModel().finally(() => setModelLoading(false));
   }, []);
 
@@ -107,7 +109,10 @@ export function BackgroundRemover() {
             {modelLoading ? (
               <div className="flex flex-col items-center gap-3">
                 <Loader2 className="h-8 w-8 animate-spin text-primary-500" />
-                <p className="text-sm text-[rgb(var(--muted-foreground))]">Loading AI model (~40MB)...</p>
+                <p className="text-sm text-[rgb(var(--muted-foreground))]">Downloading AI model... {modelProgress}%</p>
+                <div className="h-2 w-48 overflow-hidden rounded-full bg-[rgb(var(--muted))]">
+                  <div className="h-full rounded-full bg-gradient-to-r from-primary-500 to-purple-600 transition-all duration-300" style={{ width: `${modelProgress}%` }} />
+                </div>
               </div>
             ) : isProcessing ? (
               <div className="flex flex-col items-center gap-3">
