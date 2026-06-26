@@ -1,19 +1,5 @@
-let xenovaModule: any = null;
 let segmenter: any = null;
 let progressCallback: ((pct: number) => void) | null = null;
-
-async function getXenova() {
-  if (!xenovaModule) {
-    xenovaModule = await import("@xenova/transformers");
-    xenovaModule.env.allowLocalModels = false;
-    xenovaModule.env.useBrowserCache = true;
-    try {
-      const wasmPath = "https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2/dist/";
-      xenovaModule.env.backends.onnx.wasm.wasmPaths = wasmPath;
-    } catch {}
-  }
-  return xenovaModule;
-}
 
 export function onModelProgress(fn: (pct: number) => void) {
   progressCallback = fn;
@@ -25,14 +11,19 @@ function progressHook(pct: number) {
 
 async function getSegmenter() {
   if (!segmenter) {
-    const xenova = await getXenova();
-    segmenter = await xenova.pipeline("image-segmentation", "Xenova/u2net", {
-      progress_callback: (data: any) => {
-        if (data.status === "progress") {
-          progressHook(data.progress);
-        }
+    const { FilesetResolver, ImageSegmenter } = await import("@mediapipe/tasks-vision");
+    const wasmFileset = await FilesetResolver.forVisionTasks(
+      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.15/wasm/"
+    );
+    segmenter = await ImageSegmenter.createFromOptions(wasmFileset, {
+      baseOptions: {
+        modelAssetPath:
+          "https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/selfie_segmenter.tflite",
       },
+      runningMode: "IMAGE",
+      outputConfidenceMasks: true,
     });
+    progressHook(100);
   }
   return segmenter;
 }
@@ -48,31 +39,6 @@ function createCanvas(w: number, h: number) {
   return { canvas: c, ctx: c.getContext("2d")! };
 }
 
-function readMaskPixels(raw: any, channels: number, len: number): Float32Array {
-  const out = new Float32Array(len);
-  const isFloat = raw instanceof Float32Array || raw instanceof Float64Array;
-
-  if (isFloat) {
-    if (channels === 1) {
-      for (let i = 0; i < len; i++) out[i] = raw[i] ?? 0;
-    } else {
-      for (let i = 0; i < len; i++) out[i] = raw[i * channels] ?? 0;
-    }
-  } else {
-    if (channels === 1) {
-      for (let i = 0; i < len; i++) out[i] = (raw[i] ?? 0) / 255;
-    } else {
-      for (let i = 0; i < len; i++) out[i] = (raw[i * channels] ?? 0) / 255;
-    }
-  }
-  return out;
-}
-
-function contrastCurve(val: number): number {
-  if (val > 0.5) return 0.5 + (val - 0.5) * 1.5;
-  return val * 0.5;
-}
-
 export async function removeBackground(
   file: File,
   options?: {
@@ -83,102 +49,60 @@ export async function removeBackground(
   }
 ): Promise<Blob> {
   const model = await getSegmenter();
-  const xenova = await getXenova();
-  const img = await xenova.RawImage.read(file);
-  const origW = img.width;
-  const origH = img.height;
+  const bitmap = await createImageBitmap(file);
+  const w = bitmap.width;
+  const h = bitmap.height;
 
   let results;
   try {
-    results = await model(img);
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    canvas.getContext("2d")!.drawImage(bitmap, 0, 0);
+    results = model.segment(canvas);
   } catch {
-    const canvas = document.createElement("canvas");
-    canvas.width = origW;
-    canvas.height = origH;
-    canvas.getContext("2d")!.drawImage(await createImageBitmap(file), 0, 0);
-    return new Promise((r) => canvas.toBlob((b) => r(b!), "image/png"));
+    bitmap.close();
+    const fbCanvas = document.createElement("canvas");
+    fbCanvas.width = w;
+    fbCanvas.height = h;
+    fbCanvas.getContext("2d")!.drawImage(bitmap, 0, 0);
+    return new Promise((r) => fbCanvas.toBlob((b) => r(b!), "image/png"));
   }
 
-  const resultsArr = Array.isArray(results) ? results : [results];
-  let maskOutput: any = null;
-  for (const r of resultsArr) {
-    if (r.label !== "background") {
-      maskOutput = r.mask;
-      break;
-    }
-  }
-  if (!maskOutput) maskOutput = resultsArr[0]?.mask;
-  if (!maskOutput) {
-    const canvas = document.createElement("canvas");
-    canvas.width = origW;
-    canvas.height = origH;
-    canvas.getContext("2d")!.drawImage(await createImageBitmap(file), 0, 0);
-    return new Promise((r) => canvas.toBlob((b) => r(b!), "image/png"));
+  const mask = results.confidenceMasks?.[1] || results.categoryMask;
+  if (!mask) {
+    bitmap.close();
+    const fbCanvas = document.createElement("canvas");
+    fbCanvas.width = w;
+    fbCanvas.height = h;
+    fbCanvas.getContext("2d")!.drawImage(bitmap, 0, 0);
+    return new Promise((r) => fbCanvas.toBlob((b) => r(b!), "image/png"));
   }
 
-  const mw = maskOutput.width || maskOutput.dims?.[3];
-  const mh = maskOutput.height || maskOutput.dims?.[2];
-  const w = typeof mw === "number" ? mw : 320;
-  const h = typeof mh === "number" ? mh : 320;
-  const channels = maskOutput.channels || 1;
-  const raw = maskOutput.data || maskOutput;
-  const pixels = readMaskPixels(raw, channels, w * h);
+  const maskData = mask.getAsFloat32Array();
+  const mw = mask.width;
+  const mh = mask.height;
 
-  const maskCanvas = document.createElement("canvas");
-  maskCanvas.width = w;
-  maskCanvas.height = h;
-  const ctx = maskCanvas.getContext("2d")!;
-  const imageData = ctx.createImageData(w, h);
-  const data = imageData.data;
-
-  let upper = 0, lower = 1;
-  for (let i = 0; i < w * h; i++) {
-    if (pixels[i] > upper) upper = pixels[i];
-    if (pixels[i] < lower) lower = pixels[i];
-  }
-  const mean = pixels.reduce((s, v) => s + v, 0) / (w * h);
-  const inverted = mean > 0.6;
-  const threshold = Math.max(0.05, lower + (upper - lower) * 0.1);
-
-  for (let i = 0; i < w * h; i++) {
-    let val = inverted ? 1 - pixels[i] : pixels[i];
-    if (val < threshold) val = 0;
-    const boosted = contrastCurve(val);
-    const final = Math.round(Math.max(0, Math.min(255, boosted * 255)));
-    const di = i * 4;
-    data[di] = final;
-    data[di + 1] = final;
-    data[di + 2] = final;
-    data[di + 3] = 255;
-  }
-
-  ctx.putImageData(imageData, 0, 0);
-
-  const resultCanvas = document.createElement("canvas");
-  resultCanvas.width = origW;
-  resultCanvas.height = origH;
-  const rctx = resultCanvas.getContext("2d")!;
-  rctx.imageSmoothingEnabled = true;
-  rctx.imageSmoothingQuality = "high";
-
-  const tempCanvas = document.createElement("canvas");
-  tempCanvas.width = origW;
-  tempCanvas.height = origH;
-  const tctx = tempCanvas.getContext("2d")!;
-  tctx.imageSmoothingEnabled = true;
-  tctx.imageSmoothingQuality = "high";
-  tctx.drawImage(maskCanvas, 0, 0, origW, origH);
-  const resizedMask = tctx.getImageData(0, 0, origW, origH);
-
-  const bitmap = await createImageBitmap(file);
+  const { canvas: resultCanvas, ctx: rctx } = createCanvas(w, h);
   rctx.drawImage(bitmap, 0, 0);
   bitmap.close();
 
-  const finalData = rctx.getImageData(0, 0, origW, origH);
-  for (let i = 0; i < origW * origH; i++) {
-    finalData.data[i * 4 + 3] = resizedMask.data[i * 4];
+  const imageData = rctx.getImageData(0, 0, w, h);
+  const pixels = imageData.data;
+  const isCategory = !results.confidenceMasks;
+
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const mx = Math.round((x / w) * mw);
+      const my = Math.round((y / h) * mh);
+      const mi = my * mw + mx;
+      let alpha = maskData[mi] ?? 0;
+      if (isCategory) alpha = alpha > 0 ? 255 : 0;
+      pixels[(y * w + x) * 4 + 3] = Math.round(Math.max(0, Math.min(255, alpha * 255)));
+    }
   }
-  rctx.putImageData(finalData, 0, 0);
+
+  rctx.putImageData(imageData, 0, 0);
 
   return new Promise((resolve) =>
     resultCanvas.toBlob((b) => resolve(b!), options?.outputFormat || "png")
@@ -223,9 +147,9 @@ export async function batchRemoveBackground(
   for (const blob of results) {
     const bitmap = await createImageBitmap(blob);
     const scale = 1024 / bitmap.width;
-    const h = bitmap.height * scale;
-    ctx.drawImage(bitmap, 0, y, 1024, h);
-    y += h;
+    const bh = bitmap.height * scale;
+    ctx.drawImage(bitmap, 0, y, 1024, bh);
+    y += bh;
     bitmap.close();
   }
   canvas.height = y;
