@@ -3,24 +3,21 @@ const nextConfig = {
   images: {
     remotePatterns: [{ protocol: "https", hostname: "**" }],
   },
-  async headers() {
-    return [
-      {
-        source: "/(.*)",
-        headers: [
-          { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
-          { key: "Cross-Origin-Embedder-Policy", value: "require-corp" },
-        ],
-      },
-    ];
-  },
-  webpack: (config) => {
+  transpilePackages: ["@imgly/background-removal", "onnxruntime-web"],
+  webpack: (config, { isServer }) => {
     config.resolve.fallback = {
       ...config.resolve.fallback,
       fs: false,
       path: false,
       crypto: false,
     };
+
+    config.module.rules.push({
+      test: /\.mjs$/,
+      include: [/onnxruntime-web/],
+      type: "javascript/auto",
+    });
+
     return config;
   },
 };
