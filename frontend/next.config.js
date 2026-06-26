@@ -4,7 +4,7 @@ const nextConfig = {
     remotePatterns: [{ protocol: "https", hostname: "**" }],
   },
   webpack: (config, { webpack }) => {
-    config.plugins.push(new webpack.IgnorePlugin({ resourceRegExp: /onnxruntime-node$/ }));
+    config.plugins.push(new webpack.IgnorePlugin({ resourceRegExp: /onnxruntime-node/ }));
     return config;
   },
 };
