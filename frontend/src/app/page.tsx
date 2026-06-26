@@ -14,7 +14,7 @@ export default function Home() {
           <div className="mx-auto max-w-3xl text-center">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border bg-[rgb(var(--muted))] px-4 py-1.5 text-sm">
               <Sparkles className="h-4 w-4 text-primary-500" />
-              <span>Powered by BiRefNet + RMBG-2.0 Hybrid Engine</span>
+              <span>Powered by AI — Runs 100% in Your Browser</span>
             </div>
             <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
               Remove Backgrounds with{" "}
@@ -23,9 +23,8 @@ export default function Home() {
               </span>
             </h1>
             <p className="mt-6 text-lg leading-relaxed text-[rgb(var(--muted-foreground))]">
-              Professional-grade background removal that preserves hair strands, fur details,
-              transparent objects, and complex edges. RemoveAnything AI delivers quality
-              comparable to remove.bg using open-source models.
+               Professional-grade background removal that runs entirely in your browser.
+              No uploads, no servers, 100% private. Your images never leave your device.
             </p>
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Link

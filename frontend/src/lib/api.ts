@@ -1,4 +1,13 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+import { removeBackground as imglyRemoveBackground, preload } from "@imgly/background-removal";
+
+let modelLoaded = false;
+
+export async function preloadModel() {
+  if (!modelLoaded) {
+    await preload();
+    modelLoaded = true;
+  }
+}
 
 export async function removeBackground(
   file: File,
@@ -9,24 +18,18 @@ export async function removeBackground(
     highResolution?: boolean;
   }
 ): Promise<Blob> {
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("preserve_shadows", String(options?.preserveShadows ?? false));
-  formData.append("edge_refinement", String(options?.edgeRefinement ?? true));
-  formData.append("output_format", options?.outputFormat ?? "png");
-  formData.append("high_resolution", String(options?.highResolution ?? true));
+  await preloadModel();
 
-  const response = await fetch(`${API_URL}/remove-background`, {
-    method: "POST",
-    body: formData,
+  const format = options?.outputFormat || "png";
+  const quality = options?.highResolution ? 1.0 : 0.8;
+
+  const blob = await imglyRemoveBackground(file, {
+    output: {
+      format: { quality, type: format as "png" | "jpeg" | "webp" },
+    },
   });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.detail || "Background removal failed");
-  }
-
-  return response.blob();
+  return blob;
 }
 
 export async function replaceBackground(
@@ -38,30 +41,43 @@ export async function replaceBackground(
     preserveShadows?: boolean;
   }
 ): Promise<Blob> {
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("background_type", options.backgroundType);
-  if (options.color) {
-    formData.append("color_r", String(options.color.r));
-    formData.append("color_g", String(options.color.g));
-    formData.append("color_b", String(options.color.b));
-  }
-  if (options.blurStrength !== undefined) {
-    formData.append("blur_strength", String(options.blurStrength));
-  }
-  formData.append("preserve_shadows", String(options.preserveShadows ?? false));
+  await preloadModel();
 
-  const response = await fetch(`${API_URL}/replace-background`, {
-    method: "POST",
-    body: formData,
+  const blob = await imglyRemoveBackground(file, {
+    output: {
+      format: { quality: 1.0, type: "png" },
+    },
   });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.detail || "Background replacement failed");
+  if (options.backgroundType === "color" && options.color) {
+    const { r, g, b } = options.color;
+    const imageBitmap = await createImageBitmap(blob);
+    const canvas = document.createElement("canvas");
+    canvas.width = imageBitmap.width;
+    canvas.height = imageBitmap.height;
+    const ctx = canvas.getContext("2d")!;
+    ctx.fillStyle = `rgb(${r},${g},${b})`;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(imageBitmap, 0, 0);
+    imageBitmap.close();
+    return new Promise((resolve) => canvas.toBlob((b) => resolve(b!), "image/png"));
   }
 
-  return response.blob();
+  if (options.backgroundType === "blur") {
+    const imageBitmap = await createImageBitmap(blob);
+    const canvas = document.createElement("canvas");
+    canvas.width = imageBitmap.width;
+    canvas.height = imageBitmap.height;
+    const ctx = canvas.getContext("2d")!;
+    ctx.filter = `blur(${options.blurStrength || 30}px)`;
+    ctx.drawImage(imageBitmap, 0, 0);
+    ctx.filter = "none";
+    ctx.drawImage(imageBitmap, 0, 0);
+    imageBitmap.close();
+    return new Promise((resolve) => canvas.toBlob((b) => resolve(b!), "image/png"));
+  }
+
+  return blob;
 }
 
 export async function batchRemoveBackground(
@@ -72,28 +88,34 @@ export async function batchRemoveBackground(
     outputFormat?: string;
   }
 ): Promise<Blob> {
-  const formData = new FormData();
-  files.forEach((file) => formData.append("files", file));
-  formData.append("preserve_shadows", String(options?.preserveShadows ?? false));
-  formData.append("edge_refinement", String(options?.edgeRefinement ?? true));
-  formData.append("output_format", options?.outputFormat ?? "png");
+  await preloadModel();
 
-  const response = await fetch(`${API_URL}/batch-remove`, {
-    method: "POST",
-    body: formData,
-  });
+  const results = await Promise.all(
+    files.map((file) => imglyRemoveBackground(file))
+  );
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.detail || "Batch processing failed");
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d")!;
+
+  const totalHeight = results.reduce((sum, b) => sum + b.size, 0);
+  canvas.width = 1024;
+
+  let y = 0;
+  for (const blob of results) {
+    const bitmap = await createImageBitmap(blob);
+    const scale = 1024 / bitmap.width;
+    const h = bitmap.height * scale;
+    ctx.drawImage(bitmap, 0, y, 1024, h);
+    y += h;
+    bitmap.close();
   }
+  canvas.height = y;
 
-  return response.blob();
+  return new Promise((resolve) =>
+    canvas.toBlob((b) => resolve(b!), options?.outputFormat || "png")
+  );
 }
 
 export async function checkHealth(): Promise<{ status: string; service: string }> {
-  const baseUrl = API_URL.replace("/api/v1", "");
-  const response = await fetch(`${baseUrl}/health`);
-  if (!response.ok) throw new Error("Health check failed");
-  return response.json();
+  return { status: "ok", service: "client-side" };
 }

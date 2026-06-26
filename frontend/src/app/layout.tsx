@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "RemoveAnything AI - Professional Background Removal",
-  description: "Remove backgrounds from images with AI-powered precision. BiRefNet + RMBG-2.0 hybrid engine for professional results.",
+  description: "Remove backgrounds from images with AI-powered precision. Runs entirely in your browser — no server uploads, 100% private.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
