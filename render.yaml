@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: removeanything-backend
+    runtime: python
+    repo: https://github.com/ahsanyousaf2/ahsanyousaf2
+    branch: main
+    buildCommand: cd backend && pip install -r requirements.txt
+    startCommand: cd backend && uvicorn app:app --host 0.0.0.0 --port 10000
+    envVars:
+      - key: MODEL_NAME
+        value: u2net
+      - key: CORS_ORIGINS
+        value: '["https://ahsanyousaf2.vercel.app"]'
+      - key: LOG_LEVEL
+        value: INFO

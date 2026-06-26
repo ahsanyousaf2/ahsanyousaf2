@@ -1,6 +1,13 @@
 let segmenter: any = null;
 let progressCallback: ((pct: number) => void) | null = null;
 
+function getApiBase(): string | undefined {
+  if (typeof process !== "undefined" && process.env?.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+  return undefined;
+}
+
 export function onModelProgress(fn: (pct: number) => void) {
   progressCallback = fn;
 }
@@ -69,10 +76,30 @@ function applyMaskToImage(bitmap: ImageBitmap, maskData: Float32Array, mw: numbe
   return new Promise((r) => canvas.toBlob((b) => r(b!), "image/png"));
 }
 
-export async function removeBackground(
-  file: File,
-  options?: { preserveShadows?: boolean; edgeRefinement?: boolean; outputFormat?: string; highResolution?: boolean }
-): Promise<Blob> {
+async function removeBgViaApi(file: File): Promise<Blob | null> {
+  const base = getApiBase();
+  if (!base) return null;
+
+  const form = new FormData();
+  form.append("file", file);
+
+  try {
+    const res = await fetch(`${base}/remove-background`, {
+      method: "POST",
+      body: form,
+    });
+    if (!res.ok) {
+      console.warn("API returned", res.status, await res.text());
+      return null;
+    }
+    return await res.blob();
+  } catch (err) {
+    console.warn("API call failed, falling back to client-side", err);
+    return null;
+  }
+}
+
+async function removeBgClientSide(file: File): Promise<Blob> {
   const model = await getSegmenter();
   const bitmap = await createImageBitmap(file);
   const w = bitmap.width;
@@ -94,7 +121,6 @@ export async function removeBackground(
   const ctx = canvas.getContext("2d")!;
   ctx.drawImage(bitmap, 0, 0, cw, ch);
 
-  // Let the render settle before feeding to the model
   await new Promise((r) => setTimeout(r, 50));
 
   let results: any;
@@ -111,28 +137,24 @@ export async function removeBackground(
       URL.revokeObjectURL(blobUrl);
     } catch (err2) {
       console.error("MediaPipe segment(img) failed:", err2);
-      // One last try – OffscreenCanvas if available
       try {
         const offscreen = new OffscreenCanvas(cw, ch);
         const octx = offscreen.getContext("2d")!;
         octx.drawImage(bitmap, 0, 0, cw, ch);
         results = model.segment(offscreen as unknown as HTMLCanvasElement);
       } catch (err3) {
-        console.error("MediaPipe segment(offscreen) failed:", err3);
+        console.error("MediaPipe all attempts failed:", err3);
         return renderFallback(bitmap);
       }
     }
   }
 
   if (!results) {
-    console.warn("MediaPipe returned null/undefined results");
+    console.warn("MediaPipe returned null results");
     return renderFallback(bitmap);
   }
 
-  // Check if confidence masks were actually returned
   const cm = results.confidenceMasks as any[] | undefined;
-
-  // confidenceMasks[0] = background, confidenceMasks[1] = foreground (selfie)
   if (cm && cm.length >= 2 && cm[1]) {
     const mask = cm[1];
     const data = mask.getAsFloat32Array();
@@ -140,7 +162,6 @@ export async function removeBackground(
       return applyMaskToImage(bitmap, data, mask.width, mask.height, false);
     }
   }
-
   if (cm && cm.length >= 1 && cm[0]) {
     const mask = cm[0];
     const data = mask.getAsFloat32Array();
@@ -150,7 +171,6 @@ export async function removeBackground(
       return applyMaskToImage(bitmap, inv, mask.width, mask.height, false);
     }
   }
-
   if (results.categoryMask) {
     const mask = results.categoryMask;
     const data = mask.getAsFloat32Array();
@@ -159,15 +179,41 @@ export async function removeBackground(
     }
   }
 
-  console.warn("MediaPipe returned results but no usable mask data", Object.keys(results));
+  console.warn("MediaPipe no usable mask, keys:", Object.keys(results));
   return renderFallback(bitmap);
+}
+
+export async function removeBackground(
+  file: File,
+  options?: { preserveShadows?: boolean; edgeRefinement?: boolean; outputFormat?: string; highResolution?: boolean }
+): Promise<Blob> {
+  const apiResult = await removeBgViaApi(file);
+  if (apiResult) return apiResult;
+  return removeBgClientSide(file);
 }
 
 export async function replaceBackground(
   file: File,
   options: { backgroundType: string; color?: { r: number; g: number; b: number }; blurStrength?: number; preserveShadows?: boolean }
 ): Promise<Blob> {
-  const noBg = await removeBackground(file);
+  const base = getApiBase();
+  if (base) {
+    const form = new FormData();
+    form.append("file", file);
+    form.append("background_type", options.backgroundType);
+    if (options.color) {
+      form.append("color_r", String(options.color.r));
+      form.append("color_g", String(options.color.g));
+      form.append("color_b", String(options.color.b));
+    }
+    if (options.blurStrength) form.append("blur_strength", String(options.blurStrength));
+    try {
+      const res = await fetch(`${base}/replace-background`, { method: "POST", body: form });
+      if (res.ok) return await res.blob();
+    } catch {}
+  }
+
+  const noBg = await removeBgClientSide(file);
   const bitmap = await createImageBitmap(noBg);
   const { canvas, ctx } = createCanvas(bitmap.width, bitmap.height);
 
