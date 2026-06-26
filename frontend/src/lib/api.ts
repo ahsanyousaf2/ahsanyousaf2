@@ -1,9 +1,13 @@
-import { removeBackground as imglyRemoveBackground, preload } from "@imgly/background-removal";
-
 let modelLoaded = false;
+
+async function getImgly() {
+  const mod = await import("@imgly/background-removal");
+  return mod;
+}
 
 export async function preloadModel() {
   if (!modelLoaded) {
+    const { preload } = await getImgly();
     await preload();
     modelLoaded = true;
   }
@@ -20,16 +24,15 @@ export async function removeBackground(
 ): Promise<Blob> {
   await preloadModel();
 
+  const { removeBackground: removeBg } = await getImgly();
   const quality = options?.highResolution ? 1.0 : 0.8;
 
-  const blob = await imglyRemoveBackground(file, {
+  return removeBg(file, {
     output: {
-      format: "image/png" as const,
+      format: "image/png",
       quality,
     },
   });
-
-  return blob;
 }
 
 export async function replaceBackground(
@@ -43,9 +46,10 @@ export async function replaceBackground(
 ): Promise<Blob> {
   await preloadModel();
 
-  const blob = await imglyRemoveBackground(file, {
+  const { removeBackground: removeBg } = await getImgly();
+  const blob = await removeBg(file, {
     output: {
-      format: "image/png" as const,
+      format: "image/png",
       quality: 1.0,
     },
   });
@@ -90,15 +94,12 @@ export async function batchRemoveBackground(
   }
 ): Promise<Blob> {
   await preloadModel();
+  const { removeBackground: removeBg } = await getImgly();
 
-  const results = await Promise.all(
-    files.map((file) => imglyRemoveBackground(file))
-  );
+  const results = await Promise.all(files.map((file) => removeBg(file)));
 
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d")!;
-
-  const totalHeight = results.reduce((sum, b) => sum + b.size, 0);
   canvas.width = 1024;
 
   let y = 0;
