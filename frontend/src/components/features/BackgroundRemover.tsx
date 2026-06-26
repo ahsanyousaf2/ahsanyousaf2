@@ -102,6 +102,13 @@ export function BackgroundRemover() {
               onClear={handleClear}
             />
           </div>
+          <div className="rounded-lg border bg-[rgb(var(--muted))]/30 p-3 text-xs text-[rgb(var(--muted-foreground))] space-y-1.5">
+            <p><span className="font-medium text-[rgb(var(--foreground))]">Supported formats:</span> JPG, PNG, WEBP</p>
+            <p><span className="font-medium text-[rgb(var(--foreground))]">Max file size:</span> 20MB</p>
+            <p><span className="font-medium text-[rgb(var(--foreground))]">Processing:</span> 100% in your browser — no uploads</p>
+            <p><span className="font-medium text-[rgb(var(--foreground))]">Model:</span> MediaPipe Selfie Segmenter</p>
+            <p><span className="font-medium text-[rgb(var(--foreground))]">Limitations:</span> Works best with people/selfies. May not work well with animals, objects, or complex backgrounds.</p>
+          </div>
         </div>
 
         {/* Result */}

@@ -64,7 +64,13 @@ function applyMaskToImage(bitmap: ImageBitmap, maskData: Float32Array, mw: numbe
       const mx = Math.min(Math.round((x / canvas.width) * mw), mw - 1);
       const my = Math.min(Math.round((y / canvas.height) * mh), mh - 1);
       const raw = maskData[my * mw + mx] ?? 0;
-      const alpha = isBinary ? (raw > 0 ? 255 : 0) : Math.round(Math.max(0, Math.min(255, raw * 255)));
+      let alpha: number;
+      if (isBinary) {
+        alpha = raw > 0 ? 255 : 0;
+      } else {
+        // Apply threshold to remove "shadow" artifacts
+        alpha = raw > 0.3 ? Math.round(Math.min(255, ((raw - 0.3) / 0.7) * 255)) : 0;
+      }
       pixels[(y * canvas.width + x) * 4 + 3] = alpha;
     }
   }
@@ -120,30 +126,63 @@ async function removeBgClientSide(file: File): Promise<Blob> {
     return renderFallback(bitmap);
   }
 
-  const cm = results.confidenceMasks as any[] | undefined;
-  if (cm && cm.length >= 2 && cm[1]) {
-    const mask = cm[1];
-    const data = mask.getAsFloat32Array();
-    if (data && data.length > 0) {
-      return applyMaskToImage(bitmap, data, mask.width, mask.height, false);
-    }
+  function confidenceToAlpha(raw: number): number {
+    return raw > 0.3 ? Math.round(Math.min(255, ((raw - 0.3) / 0.7) * 255)) : 0;
   }
-  if (cm && cm.length >= 1 && cm[0]) {
-    const mask = cm[0];
+
+  function tryApply(mask: any, invert: boolean): Promise<Blob> | null {
+    if (!mask) return null;
     const data = mask.getAsFloat32Array();
-    if (data && data.length > 0) {
+    if (!data || data.length === 0) return null;
+    if (invert) {
+      const inv = new Float32Array(data.length);
+      for (let i = 0; i < data.length; i++) {
+        const raw = data[i];
+        inv[i] = 1 - raw;
+      }
+      return applyMaskToImage(bitmap, inv, mask.width, mask.height, false);
+    }
+    return applyMaskToImage(bitmap, data, mask.width, mask.height, false);
+  }
+
+  async function tryConfidence(masks: any[] | undefined, index: number, invert: boolean): Promise<Blob | null> {
+    if (!masks || index >= masks.length || !masks[index]) return null;
+    const mask = masks[index];
+    const data = mask.getAsFloat32Array();
+    if (!data || data.length === 0) return null;
+    if (invert) {
       const inv = new Float32Array(data.length);
       for (let i = 0; i < data.length; i++) inv[i] = 1 - data[i];
       return applyMaskToImage(bitmap, inv, mask.width, mask.height, false);
     }
+    return applyMaskToImage(bitmap, data, mask.width, mask.height, false);
   }
-  if (results.categoryMask) {
-    const mask = results.categoryMask;
-    const data = mask.getAsFloat32Array();
-    if (data && data.length > 0) {
-      return applyMaskToImage(bitmap, data, mask.width, mask.height, true);
+
+  // Category mask: 0 = background, 1 = foreground (binary, most reliable)
+  const cat = results.categoryMask;
+  if (cat) {
+    const catData = cat.getAsFloat32Array();
+    if (catData && catData.length > 0) {
+      return applyMaskToImage(bitmap, catData, cat.width, cat.height, true);
     }
   }
+
+  // Try foreground confidence mask at index 1
+  const cm = results.confidenceMasks as any[] | undefined;
+  let fg = await tryConfidence(cm, 1, false);
+  if (fg) return fg;
+
+  // Try foreground confidence mask at index 0 (some models swap order)
+  fg = await tryConfidence(cm, 0, false);
+  if (fg) return fg;
+
+  // Try inverted background mask at index 1
+  fg = await tryConfidence(cm, 1, true);
+  if (fg) return fg;
+
+  // Try inverted background mask at index 0
+  fg = await tryConfidence(cm, 0, true);
+  if (fg) return fg;
 
   console.warn("MediaPipe no usable mask, keys:", Object.keys(results));
   return renderFallback(bitmap);
