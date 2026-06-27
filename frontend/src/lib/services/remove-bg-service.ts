@@ -25,17 +25,19 @@ export class RemoveBgService implements BgRemoverService {
     }
 
     const name = fileName || "image.png";
-    const mime = mimeFromName(name);
+    const buf = Buffer.from(imageBuffer);
+    const base64 = buf.toString("base64");
 
-    console.log(`[RemoveBgService] sending ${name} (${mime}, ${imageBuffer.byteLength} bytes)`);
+    console.log(`[RemoveBgService] sending ${name} (${imageBuffer.byteLength} bytes as base64)`);
+
+    const form = new FormData();
+    form.append("image_file_b64", base64);
+    form.append("size", "auto");
 
     const res = await fetch(this.endpoint, {
       method: "POST",
-      headers: {
-        "X-Api-Key": this.apiKey,
-        "Content-Type": mime,
-      },
-      body: imageBuffer,
+      headers: { "X-Api-Key": this.apiKey },
+      body: form,
     });
 
     if (!res.ok) {
