@@ -8,21 +8,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing 'image' file in form data" }, { status: 400 });
     }
 
-    const buffer = await file.arrayBuffer();
-    const base64 = Buffer.from(buffer).toString("base64");
-
-    const body = new FormData();
-    body.append("image_file_b64", base64);
-    body.append("size", "auto");
-
     const apiKey = process.env.BG_REMOVER_API_KEY;
+
+    const upstream = new FormData();
+    upstream.append("image_file", file, file.name);
+    upstream.append("size", "auto");
 
     const res = await fetch("https://api.remove.bg/v1.0/removebg", {
       method: "POST",
-      headers: {
-        "X-Api-Key": apiKey || "",
-      },
-      body,
+      headers: { "X-Api-Key": apiKey || "" },
+      body: upstream,
     });
 
     if (!res.ok) {
