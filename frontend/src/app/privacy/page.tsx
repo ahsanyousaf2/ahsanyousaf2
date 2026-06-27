@@ -11,17 +11,18 @@ export default function PrivacyPage() {
         <section>
           <h2 className="text-xl font-semibold text-[rgb(var(--foreground))]">Data Processing</h2>
           <p className="mt-2">
-            All image processing happens entirely in your browser. Your images are never uploaded to
-            any server. The AI model runs locally on your device using WebGL and WebAssembly.
+            When you upload an image, it is sent to our server for background removal processing.
+            Once processing is complete, the result is returned to your browser.
+            We do not permanently store your images on our servers.
           </p>
         </section>
 
         <section>
           <h2 className="text-xl font-semibold text-[rgb(var(--foreground))]">Third-Party Services</h2>
           <p className="mt-2">
-            This application is hosted on Vercel. Standard Vercel server logs may record
+            Background removal is powered by a third-party API. Images are sent to this service
+            for processing and are not stored permanently. Standard Vercel server logs may record
             anonymized request data (timestamps, paths, status codes) but not image contents.
-            No third-party services process your images.
           </p>
         </section>
 
