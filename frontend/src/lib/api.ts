@@ -9,16 +9,6 @@ let preloadPromise: Promise<void> | null = null;
 
 type ProgressCallback = (loaded: number, total: number, stage: string) => void;
 
-async function hasWebGPU() {
-  try {
-    if (!("gpu" in navigator)) return false;
-    const adapter = await (navigator as any).gpu.requestAdapter();
-    return !!adapter;
-  } catch {
-    return false;
-  }
-}
-
 export function isModelReady() {
   return modelReady;
 }
@@ -42,7 +32,6 @@ export async function preloadModel(onProgress?: ProgressCallback): Promise<void>
       onProgress?.(0, 1, "Initializing...");
       await ensureLibrary();
 
-      const useGPU = await hasWebGPU();
       onProgress?.(1, 4, "Downloading AI model...");
 
       const canvas = document.createElement("canvas");
@@ -54,8 +43,6 @@ export async function preloadModel(onProgress?: ProgressCallback): Promise<void>
 
       await removeImgBg!(blob!, {
         model: "medium",
-        device: useGPU ? "gpu" : "cpu",
-        proxyToWorker: true,
         progress: (_key: string, current: number, total: number) => {
           onProgress?.(current, total, "Downloading AI model...");
         },
@@ -84,11 +71,8 @@ export async function removeBackground(
 
   try {
     await ensureLibrary();
-    const useGPU = await hasWebGPU();
     const blob = await removeImgBg!(file, {
       model: "medium",
-      device: useGPU ? "gpu" : "cpu",
-      proxyToWorker: true,
       progress: (_key: string, current: number, total: number) => {
         if (current < total) {
           onProgress?.(current, total, "Removing background...");
