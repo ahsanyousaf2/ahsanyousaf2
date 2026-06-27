@@ -9,9 +9,10 @@ interface ImageUploaderProps {
   onImageSelect: (file: File) => void;
   currentImage?: string | null;
   onClear?: () => void;
+  disabled?: boolean;
 }
 
-export function ImageUploader({ onImageSelect, currentImage, onClear }: ImageUploaderProps) {
+export function ImageUploader({ onImageSelect, currentImage, onClear, disabled }: ImageUploaderProps) {
   const [isDragActive, setIsDragActive] = useState(false);
 
   const onDrop = useCallback(
@@ -24,10 +25,11 @@ export function ImageUploader({ onImageSelect, currentImage, onClear }: ImageUpl
   );
 
   const { getRootProps, getInputProps, isDragAccept, isDragReject } = useDropzone({
-    onDrop,
+    onDrop: disabled ? undefined : onDrop,
     accept: { "image/*": [".jpg", ".jpeg", ".png", ".webp"] },
-    maxFiles: 1,
+    maxFiles: disabled ? 0 : 1,
     maxSize: 20 * 1024 * 1024,
+    disabled,
     onDragEnter: () => setIsDragActive(true),
     onDragLeave: () => setIsDragActive(false),
   });
