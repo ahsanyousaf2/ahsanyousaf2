@@ -1,20 +1,20 @@
-import { Zap, Shield, Image, Layers, Download, Palette } from "lucide-react";
+import { Zap, Shield, Image, Layers, Download } from "lucide-react";
 
 const features = [
   {
-    icon: Zap,
-    title: "AI-Powered",
-    description: "Advanced AI detects and separates subjects from backgrounds with pixel-perfect precision.",
-  },
-  {
-    icon: Shield,
-    title: "High Quality",
-    description: "Clean, natural edges with support for fine details like hair and fur.",
-  },
-  {
     icon: Image,
-    title: "Instant Preview",
-    description: "See the result immediately with side-by-side comparison to your original image.",
+    title: "Upload",
+    description: "Select any JPG, PNG, or WEBP image from your device.",
+  },
+  {
+    icon: Zap,
+    title: "AI Processing",
+    description: "Our AI automatically detects the subject and removes the background.",
+  },
+  {
+    icon: Download,
+    title: "Download",
+    description: "Get a transparent PNG — ready for your projects.",
   },
   {
     icon: Layers,
@@ -22,14 +22,9 @@ const features = [
     description: "Works with people, products, animals, cars, and more.",
   },
   {
-    icon: Palette,
-    title: "Background Replace",
-    description: "Replace with solid colors, blur effects, or keep it transparent.",
-  },
-  {
-    icon: Download,
-    title: "Multiple Formats",
-    description: "Download as transparent PNG or WEBP at original resolution.",
+    icon: Shield,
+    title: "No Signup",
+    description: "No accounts, no credit cards, no limits. Just upload and download.",
   },
 ];
 

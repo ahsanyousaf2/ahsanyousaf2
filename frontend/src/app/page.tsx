@@ -4,22 +4,27 @@ import Link from "next/link";
 import { ArrowRight, Sparkles, Image, Zap, Shield, Download, CheckCircle } from "lucide-react";
 
 const stats = [
-  { value: "99.8%", label: "Accuracy Rate" },
+  { value: "JPG", label: "Supported Format" },
   { value: "<2s", label: "Processing Speed" },
-  { value: "100%", label: "Free to Use" },
+  { value: "Free", label: "No Signup Needed" },
   { value: "20MB", label: "Max File Size" },
 ];
 
 const features = [
   {
     icon: Image,
-    title: "AI-Powered Segmentation",
-    desc: "Advanced AI detects and separates subjects from backgrounds with pixel-perfect precision.",
+    title: "Upload Any Image",
+    desc: "Select a JPG, PNG, or WEBP image. Up to 20MB supported.",
   },
   {
     icon: Zap,
-    title: "Fast Processing",
-    desc: "Results in seconds. Upload your image and get a transparent PNG instantly.",
+    title: "AI Removes Background",
+    desc: "Our AI detects the subject and removes the background in seconds.",
+  },
+  {
+    icon: Download,
+    title: "Download Transparent PNG",
+    desc: "Get your result as a high-quality PNG with a transparent background.",
   },
   {
     icon: Shield,
@@ -27,19 +32,9 @@ const features = [
     desc: "No accounts, no credit cards, no limits. Just upload and download.",
   },
   {
-    icon: Download,
-    title: "Full Quality Output",
-    desc: "Export transparent PNGs at original resolution with crisp, clean edges.",
-  },
-  {
     icon: CheckCircle,
     title: "Works on Any Subject",
     desc: "People, products, animals, cars — handles all types of foreground subjects.",
-  },
-  {
-    icon: Sparkles,
-    title: "Background Replacement",
-    desc: "Swap backgrounds with solid colors, blur effects, or keep it transparent.",
   },
 ];
 

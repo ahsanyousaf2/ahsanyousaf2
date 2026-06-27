@@ -6,7 +6,7 @@ export function Footer() {
   return (
     <footer className="border-t bg-[rgb(var(--background))]">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-8 md:grid-cols-3">
           <div>
             <h3 className="text-sm font-semibold">Product</h3>
             <ul className="mt-4 space-y-2">
@@ -28,13 +28,6 @@ export function Footer() {
             <ul className="mt-4 space-y-2">
               <li><Link href="/privacy" className="text-sm text-[rgb(var(--muted-foreground))] hover:text-[rgb(var(--foreground))]">Privacy</Link></li>
               <li><Link href="/terms" className="text-sm text-[rgb(var(--muted-foreground))] hover:text-[rgb(var(--foreground))]">Terms</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="text-sm font-semibold">Tech</h3>
-            <ul className="mt-4 space-y-2">
-              <li><span className="text-sm text-[rgb(var(--muted-foreground))]">Built with Next.js</span></li>
-              <li><span className="text-sm text-[rgb(var(--muted-foreground))]">AI Background Removal</span></li>
             </ul>
           </div>
         </div>

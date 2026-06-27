@@ -53,33 +53,18 @@ export default function ApiDocsPage() {
         </div>
 
         <div className="rounded-xl border bg-[rgb(var(--card))] p-6">
-          <h3 className="mb-4 text-lg font-semibold">JavaScript / TypeScript</h3>
+          <h3 className="mb-4 text-lg font-semibold">JavaScript</h3>
           <CodeBlock
-            code={`import { removeBackground, replaceBackground } from "@/lib/api";
+            code={`const file = event.target.files[0];
+const form = new FormData();
+form.append("image", file);
 
-// Remove background from a File
-const file = event.target.files[0];
-const blob = await removeBackground(file);
-const url = URL.createObjectURL(blob);
+const res = await fetch("/api/remove-bg", {
+  method: "POST",
+  body: form,
+});
 
-// Replace background with a color
-const result = await replaceBackground(file, {
-  backgroundType: "color",
-  color: { r: 37, g: 99, b: 235 },
-});`}
-            language="typescript"
-          />
-        </div>
-
-        <div className="rounded-xl border bg-[rgb(var(--card))] p-6">
-          <h3 className="mb-4 text-lg font-semibold">Replace Background</h3>
-          <CodeBlock
-            code={`import { replaceBackground } from "@/lib/api";
-
-const blob = await replaceBackground(file, {
-  backgroundType: "color",
-  color: { r: 37, g: 99, b: 235 }, // blue
-});`}
+const blob = await res.blob();`}
             language="typescript"
           />
         </div>

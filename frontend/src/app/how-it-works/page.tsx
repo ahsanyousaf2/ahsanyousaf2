@@ -15,7 +15,7 @@ const steps = [
   {
     icon: Download,
     title: "3. Download the Result",
-    desc: "Get a high-quality PNG with a transparent background. You can also replace the background with a solid color or blur effect.",
+    desc: "Get a high-quality PNG with a transparent background, ready to use in your projects.",
   },
 ];
 

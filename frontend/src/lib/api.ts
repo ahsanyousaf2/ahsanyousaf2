@@ -54,31 +54,3 @@ export async function removeBackground(file: File): Promise<Blob> {
     throw new Error(err.message || "Failed to remove background. Please try again.");
   }
 }
-
-export async function replaceBackground(
-  source: File | Blob,
-  options: { backgroundType: string; color?: { r: number; g: number; b: number }; blurStrength?: number }
-): Promise<Blob> {
-  const noBg = source instanceof File ? await removeBackground(source) : source;
-  const bitmap = await createImageBitmap(noBg);
-  const canvas = document.createElement("canvas");
-  canvas.width = bitmap.width;
-  canvas.height = bitmap.height;
-  const ctx = canvas.getContext("2d")!;
-
-  if (options.backgroundType === "color" && options.color) {
-    const { r, g, b } = options.color;
-    ctx.fillStyle = `rgb(${r},${g},${b})`;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-  } else if (options.backgroundType === "blur") {
-    ctx.filter = `blur(${options.blurStrength || 30}px)`;
-  }
-
-  ctx.drawImage(bitmap, 0, 0);
-  bitmap.close();
-  return new Promise((resolve) => canvas.toBlob((b) => resolve(b!), "image/png"));
-}
-
-export async function checkHealth() {
-  return { status: "ok", service: "api" };
-}
