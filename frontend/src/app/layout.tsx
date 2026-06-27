@@ -7,8 +7,8 @@ import { Footer } from "@/components/layout/Footer";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "RemoveAnything AI - Professional Background Removal",
-  description: "Remove backgrounds from images with AI-powered precision. Runs entirely in your browser — no server uploads, 100% private.",
+  title: "RemoveAnything AI - Free AI Background Removal",
+  description: "Remove backgrounds from images with AI-powered precision. Fast, free, and no signup required.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

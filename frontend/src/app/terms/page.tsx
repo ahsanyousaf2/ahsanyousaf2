@@ -5,7 +5,7 @@ export default function TermsPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
       <h1 className="text-4xl font-bold">Terms of Service</h1>
-      <p className="mt-2 text-[rgb(var(--muted-foreground))]">Last updated: June 26, 2026</p>
+      <p className="mt-2 text-[rgb(var(--muted-foreground))]">Last updated: June 27, 2026</p>
 
       <div className="mt-8 space-y-6 text-[rgb(var(--muted-foreground))]">
         <section>
@@ -20,17 +20,15 @@ export default function TermsPage() {
           <h2 className="text-xl font-semibold text-[rgb(var(--foreground))]">Use of Service</h2>
           <p className="mt-2">
             RemoveAnything AI is provided free of charge for personal and commercial use. You may use
-            the background removal tool for any lawful purpose. The service processes images entirely
-            client-side, and we do not store or access your uploaded content.
+            the background removal tool for any lawful purpose. Background removal is powered by
+            remove.bg API; by using this service you also agree to remove.bg&apos;s terms of service.
           </p>
         </section>
 
         <section>
           <h2 className="text-xl font-semibold text-[rgb(var(--foreground))]">Intellectual Property</h2>
           <p className="mt-2">
-            You retain all rights to your images and their processed outputs. The background removal
-            technology (MediaPipe Selfie Segmenter) is open-source and used under
-            their respective licenses.
+            You retain all rights to your images and their processed outputs.
           </p>
         </section>
 
@@ -38,8 +36,7 @@ export default function TermsPage() {
           <h2 className="text-xl font-semibold text-[rgb(var(--foreground))]">Limitation of Liability</h2>
           <p className="mt-2">
             RemoveAnything AI is provided &quot;as is&quot; without warranty of any kind. We are not liable for
-            any damages arising from the use or inability to use the service. The AI model may not
-            produce perfect results for all images.
+            any damages arising from the use or inability to use the service.
           </p>
         </section>
 

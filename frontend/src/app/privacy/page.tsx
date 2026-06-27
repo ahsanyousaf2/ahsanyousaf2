@@ -5,24 +5,38 @@ export default function PrivacyPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
       <h1 className="text-4xl font-bold">Privacy Policy</h1>
-      <p className="mt-2 text-[rgb(var(--muted-foreground))]">Last updated: June 26, 2026</p>
+      <p className="mt-2 text-[rgb(var(--muted-foreground))]">Last updated: June 27, 2026</p>
 
       <div className="mt-8 space-y-6 text-[rgb(var(--muted-foreground))]">
         <section>
           <h2 className="text-xl font-semibold text-[rgb(var(--foreground))]">Data Processing</h2>
           <p className="mt-2">
-            RemoveAnything AI processes all images entirely in your browser using client-side JavaScript.
-            We do not upload, store, transmit, or process your images on any server. The AI model
-            (MediaPipe Selfie Segmenter) runs locally on your device via WebAssembly and WebGL.
+            When you upload an image, it is sent to our server and then forwarded to remove.bg
+            for AI background removal processing. Once processing is complete, the result is
+            returned to your browser. We do not permanently store your images on our servers.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-semibold text-[rgb(var(--foreground))]">Third-Party Services</h2>
+          <p className="mt-2">
+            Background removal is powered by remove.bg (a Canva Austria GmbH brand).
+            Images are sent to remove.bg for processing and are subject to their privacy policy
+            and terms of service. We recommend reviewing remove.bg&apos;s privacy policy for details
+            on how they handle uploaded images.
+          </p>
+          <p className="mt-2">
+            This application is hosted on Vercel. Standard Vercel server logs may record
+            anonymized request data (timestamps, paths, status codes) but not image contents.
           </p>
         </section>
 
         <section>
           <h2 className="text-xl font-semibold text-[rgb(var(--foreground))]">Information We Collect</h2>
           <p className="mt-2">
-            We do not collect any personal information. Since all image processing occurs client-side,
-            we never have access to your images or any data contained within them. Standard web analytics
-            (page views) may be collected if you have granted consent.
+            We do not collect personal information, store uploaded images, or track individual users.
+            Standard web analytics (page views) may be collected if you have granted consent via your
+            browser settings.
           </p>
         </section>
 
@@ -36,11 +50,11 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold text-[rgb(var(--foreground))]">Third-Party Services</h2>
+          <h2 className="text-xl font-semibold text-[rgb(var(--foreground))]">Data Retention</h2>
           <p className="mt-2">
-            This application is hosted on Vercel. The AI model is loaded from Google Storage CDN
-            on first use and cached in your browser. No personal data is transmitted to
-            either service.
+            Uploaded images are temporarily held in memory during processing and are not written to
+            disk. Processed results are sent back to your browser and are not retained on our servers.
+            remove.bg may retain images in accordance with their own data retention policy.
           </p>
         </section>
 

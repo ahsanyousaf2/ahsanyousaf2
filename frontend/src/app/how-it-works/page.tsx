@@ -5,12 +5,12 @@ const steps = [
   {
     icon: Upload,
     title: "1. Upload Your Image",
-    desc: "Select any image from your device (JPG, PNG, or WEBP, up to 20MB). The image stays on your computer — nothing is uploaded to any server.",
+    desc: "Select any image from your device (JPG, PNG, or WEBP, up to 20MB). Our system accepts standard image formats and prepares them for processing.",
   },
   {
     icon: Cpu,
-    title: "2. AI Processes Locally",
-    desc: "MediaPipe's Selfie Segmenter model runs directly in your browser using WebAssembly and WebGL. The AI detects the subject and creates a precise mask.",
+    title: "2. AI Removes the Background",
+    desc: "Our AI-powered service analyzes the image, identifies the foreground subject, and removes the background with pixel-level precision.",
   },
   {
     icon: Download,
@@ -25,7 +25,7 @@ export default function HowItWorksPage() {
       <div className="mb-12 text-center">
         <h1 className="text-4xl font-bold">How It Works</h1>
         <p className="mt-4 text-lg text-[rgb(var(--muted-foreground))]">
-          Background removal powered by AI, running entirely in your browser.
+          AI-powered background removal in three simple steps.
         </p>
       </div>
 
@@ -46,11 +46,10 @@ export default function HowItWorksPage() {
       <div className="mt-12 rounded-xl border bg-[rgb(var(--card))] p-8">
         <h2 className="text-xl font-semibold">Technical Details</h2>
         <ul className="mt-4 space-y-3 text-sm text-[rgb(var(--muted-foreground))]">
-          <li><strong className="text-[rgb(var(--foreground))]">Model:</strong> MediaPipe Selfie Segmenter (float16) — lightweight and optimized for real-time performance</li>
-          <li><strong className="text-[rgb(var(--foreground))]">Runtime:</strong> WebAssembly + WebGL via MediaPipe Tasks Vision</li>
-          <li><strong className="text-[rgb(var(--foreground))]">Privacy:</strong> 100% client-side — your images never leave your device</li>
+          <li><strong className="text-[rgb(var(--foreground))]">Service:</strong> Powered by remove.bg AI — industry-leading background removal technology</li>
           <li><strong className="text-[rgb(var(--foreground))]">Speed:</strong> Typically processes in under 2 seconds for standard images</li>
           <li><strong className="text-[rgb(var(--foreground))]">Formats:</strong> Input JPG/PNG/WEBP, output PNG with transparency</li>
+          <li><strong className="text-[rgb(var(--foreground))]">Limitations:</strong> Free tier includes 50 removals per month via remove.bg</li>
         </ul>
       </div>
 

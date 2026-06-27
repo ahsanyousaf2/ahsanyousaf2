@@ -4,12 +4,12 @@ const features = [
   {
     icon: Zap,
     title: "AI-Powered",
-    description: "Powered by U2Net deep learning model with contrast-enhanced edge refinement for professional results.",
+    description: "Advanced AI detects and separates subjects from backgrounds with pixel-perfect precision.",
   },
   {
     icon: Shield,
     title: "High Quality",
-    description: "Preserve hair strands and fine details with smart mask sharpening and feathering.",
+    description: "Clean, natural edges with support for fine details like hair and fur.",
   },
   {
     icon: Image,
@@ -18,8 +18,8 @@ const features = [
   },
   {
     icon: Layers,
-    title: "Edge Refinement",
-    description: "Automatic anti-halo correction and detail enhancement for clean, natural edges.",
+    title: "Any Subject",
+    description: "Works with people, products, animals, cars, and more.",
   },
   {
     icon: Palette,

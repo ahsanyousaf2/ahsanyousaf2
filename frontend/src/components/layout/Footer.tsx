@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+const APP_VERSION = "8";
+
 export function Footer() {
   return (
     <footer className="border-t bg-[rgb(var(--background))]">
@@ -11,7 +13,6 @@ export function Footer() {
               <li><Link href="/dashboard" className="text-sm text-[rgb(var(--muted-foreground))] hover:text-[rgb(var(--foreground))]">Dashboard</Link></li>
               <li><Link href="/api-docs" className="text-sm text-[rgb(var(--muted-foreground))] hover:text-[rgb(var(--foreground))]">API</Link></li>
               <li><Link href="/how-it-works" className="text-sm text-[rgb(var(--muted-foreground))] hover:text-[rgb(var(--foreground))]">How It Works</Link></li>
-
             </ul>
           </div>
           <div>
@@ -32,14 +33,17 @@ export function Footer() {
           <div>
             <h3 className="text-sm font-semibold">Tech</h3>
             <ul className="mt-4 space-y-2">
-              <li><span className="text-sm text-[rgb(var(--muted-foreground))]">MediaPipe Selfie Segmenter</span></li>
-              <li><span className="text-sm text-[rgb(var(--muted-foreground))]">100% Client-Side</span></li>
+              <li><span className="text-sm text-[rgb(var(--muted-foreground))]">Powered by remove.bg API</span></li>
+              <li><span className="text-sm text-[rgb(var(--muted-foreground))]">AI Background Removal</span></li>
             </ul>
           </div>
         </div>
         <div className="mt-8 border-t pt-8 text-center">
           <p className="text-sm text-[rgb(var(--muted-foreground))]">
             &copy; {new Date().getFullYear()} RemoveAnything AI. All rights reserved.
+          </p>
+          <p className="mt-1 text-xs text-[rgb(var(--muted-foreground))] opacity-60">
+            v{APP_VERSION}
           </p>
         </div>
       </div>

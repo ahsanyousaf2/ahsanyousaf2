@@ -4,18 +4,18 @@ import Link from "next/link";
 const values = [
   {
     icon: Zap,
-    title: "Privacy First",
-    desc: "All processing happens in your browser. Your images never touch a server or leave your device.",
+    title: "Fast & Simple",
+    desc: "Upload an image, get a transparent PNG in seconds. No complex tools or learning curve.",
   },
   {
     icon: Shield,
     title: "Free for Everyone",
-    desc: "No hidden costs, no API keys, no credit cards. Background removal should be accessible to all.",
+    desc: "No hidden costs, no credit cards, no signup. Background removal should be accessible to all.",
   },
   {
     icon: Globe,
-    title: "Built with Open Source",
-    desc: "Powered by the U2Net model and Xenova Transformers, running on ONNX Runtime Web via WebAssembly.",
+    title: "Powered by AI",
+    desc: "Uses remove.bg API for high-quality, production-grade background removal on any subject.",
   },
 ];
 
@@ -24,20 +24,18 @@ export default function AboutPage() {
     <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
       <h1 className="text-4xl font-bold">About RemoveAnything AI</h1>
       <p className="mt-4 text-lg text-[rgb(var(--muted-foreground))]">
-        We believe removing image backgrounds should be instant, private, and free for everyone.
+        We believe removing image backgrounds should be instant, free, and available to everyone.
       </p>
 
       <div className="mt-12 space-y-8 text-[rgb(var(--muted-foreground))]">
         <p>
-          RemoveAnything AI is a client-side background removal tool that runs entirely in your browser.
-          Unlike other services that upload your images to remote servers, our AI model (U2Net) runs locally
-          using ONNX Runtime Web and WebAssembly. Your images never leave your computer.
+          RemoveAnything AI makes background removal effortless. Upload any image — a product photo,
+          a portrait, a pet picture — and get a clean transparent-background PNG in seconds.
         </p>
         <p>
-          The project was built to demonstrate that modern deep learning models can run efficiently in the
-          browser without sacrificing quality or speed. By leveraging the Xenova Transformers library and
-          WebAssembly-optimized ONNX runtime, we deliver production-grade background removal with zero
-          server costs.
+          We use remove.bg AI under the hood to deliver professional-grade results without
+          requiring expensive software or technical skills. No signup, no credit card, no limits.
+          Just upload and download.
         </p>
       </div>
 

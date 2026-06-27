@@ -6,7 +6,7 @@ import { ArrowRight, Sparkles, Image, Zap, Shield, Download, CheckCircle } from 
 const stats = [
   { value: "99.8%", label: "Accuracy Rate" },
   { value: "<2s", label: "Processing Speed" },
-  { value: "100%", label: "Private & Free" },
+  { value: "100%", label: "Free to Use" },
   { value: "20MB", label: "Max File Size" },
 ];
 
@@ -14,27 +14,27 @@ const features = [
   {
     icon: Image,
     title: "AI-Powered Segmentation",
-    desc: "Uses MediaPipe Selfie Segmenter for precise subject detection and background removal.",
+    desc: "Advanced AI detects and separates subjects from backgrounds with pixel-perfect precision.",
   },
   {
     icon: Zap,
-    title: "Instant Processing",
-    desc: "Runs entirely in your browser using WebAssembly + WebGL. No uploads, no waiting.",
+    title: "Fast Processing",
+    desc: "Results in seconds. Upload your image and get a transparent PNG instantly.",
   },
   {
     icon: Shield,
-    title: "100% Private",
-    desc: "Your images never leave your device. Everything processes locally in your browser.",
+    title: "No Signup Required",
+    desc: "No accounts, no credit cards, no limits. Just upload and download.",
   },
   {
     icon: Download,
-    title: "Free & Unlimited",
-    desc: "No credits, no API keys, no limits. Remove backgrounds from as many images as you want.",
+    title: "Full Quality Output",
+    desc: "Export transparent PNGs at original resolution with crisp, clean edges.",
   },
   {
     icon: CheckCircle,
-    title: "High Quality Output",
-    desc: "Export transparent PNGs at original resolution with edge-aware refinement.",
+    title: "Works on Any Subject",
+    desc: "People, products, animals, cars — handles all types of foreground subjects.",
   },
   {
     icon: Sparkles,
@@ -52,7 +52,7 @@ export default function Home() {
           <div className="mx-auto max-w-3xl text-center">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border bg-[rgb(var(--muted))] px-4 py-1.5 text-sm">
               <Sparkles className="h-4 w-4 text-primary-500" />
-              <span>Free AI Background Removal — No Server Needed</span>
+              <span>Free AI Background Removal — No Signup Needed</span>
             </div>
             <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
               Remove Image Backgrounds{" "}
@@ -61,8 +61,8 @@ export default function Home() {
               </span>
             </h1>
             <p className="mt-6 text-lg leading-relaxed text-[rgb(var(--muted-foreground))]">
-              Professional-grade AI background removal that runs 100% in your browser.
-              No uploads, no servers, no API keys — just select an image and remove the background.
+              Professional-grade AI background removal. Fast, free, and no signup required.
+              Just upload your image and download the result.
             </p>
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Link
@@ -103,7 +103,7 @@ export default function Home() {
         <div className="grid gap-8 md:grid-cols-3">
           {[
             { step: "1", title: "Upload Image", desc: "Select any image from your device. Supports JPG, PNG, and WEBP formats up to 20MB." },
-            { step: "2", title: "AI Processing", desc: "MediaPipe's AI model runs in your browser to detect and separate the subject from the background." },
+            { step: "2", title: "AI Processing", desc: "Our AI analyzes the image and separates the subject from the background with precision." },
             { step: "3", title: "Download Result", desc: "Get your image with a transparent background as a high-quality PNG file." },
           ].map((item) => (
             <div key={item.step} className="rounded-xl border bg-[rgb(var(--card))] p-6 text-center">
