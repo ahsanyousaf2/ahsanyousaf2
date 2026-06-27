@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { ImageUploader } from "./ImageUploader";
 import { removeBackground, preloadModel, isModelReady, getModelError } from "@/lib/api";
-import { Loader2, Download } from "lucide-react";
+import { Loader2, Download, ShieldCheck } from "lucide-react";
 
 export function BackgroundRemover() {
   const [inputFile, setInputFile] = useState<File | null>(null);
@@ -95,6 +95,13 @@ export function BackgroundRemover() {
           {initProgress}. Please refresh or try a different browser (Chrome/Edge recommended).
         </div>
       )}
+
+      <div className="mb-6 rounded-lg border border-primary-500/20 bg-primary-500/5 px-4 py-3 text-sm flex items-center gap-2">
+        <ShieldCheck className="h-4 w-4 text-green-500 shrink-0" />
+        <span>
+          Your images are processed entirely in your browser on your device. We do not upload, store, or have access to your files.
+        </span>
+      </div>
 
       <div className="grid gap-8 lg:grid-cols-2">
         <div className="flex flex-col gap-4">
