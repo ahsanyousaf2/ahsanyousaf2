@@ -1,42 +1,36 @@
 "use client";
 
-async function compressForUpload(file: File): Promise<Blob> {
-  if (file.size < 4 * 1024 * 1024) return file;
+const IMGLY_CDN = "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/dist/index.mjs";
+let imglyModule: any = null;
 
-  const bitmap = await createImageBitmap(file);
-  let { width, height } = bitmap;
-  const maxDim = 2000;
-  if (width > maxDim || height > maxDim) {
-    const scale = Math.min(maxDim / width, maxDim / height);
-    width = Math.round(width * scale);
-    height = Math.round(height * scale);
+async function getImgly() {
+  if (!imglyModule) {
+    imglyModule = await import(/* webpackIgnore: true */ IMGLY_CDN);
   }
-
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext("2d")!;
-  ctx.drawImage(bitmap, 0, 0, width, height);
-  bitmap.close();
-
-  return new Promise((r) => canvas.toBlob((b) => r(b!), "image/jpeg", 0.8));
+  return imglyModule;
 }
 
-export async function removeBackground(file: File): Promise<Blob> {
-  const compressed = await compressForUpload(file);
-  const formData = new FormData();
-  const name = compressed === file ? file.name : file.name.replace(/\.[^.]+$/, ".jpg");
-  formData.append("image", compressed, name);
-
-  const res = await fetch("/api/remove-bg", {
-    method: "POST",
-    body: formData,
-  });
-
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({ error: res.statusText }));
-    throw new Error(body.error || `Server error ${res.status}`);
+export async function removeBackground(
+  file: File,
+  onProgress?: (loaded: number, total: number) => void
+): Promise<Blob> {
+  try {
+    const { removeBackground: removeImgBg } = await getImgly();
+    const blob = await removeImgBg(file, {
+      model: "medium",
+      progress: (key: string, current: number, total: number) => {
+        if (key === "model:download") {
+          onProgress?.(current, total);
+        }
+      },
+    });
+    return blob;
+  } catch (err: any) {
+    console.error("removeBackground failed:", err);
+    throw new Error(
+      err.message?.includes("WebGL")
+        ? "Your browser does not support WebGL. Please use a modern browser like Chrome, Firefox, or Edge."
+        : err.message || "Failed to remove background. Please try again."
+    );
   }
-
-  return res.blob();
 }

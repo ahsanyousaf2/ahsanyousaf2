@@ -24,6 +24,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             } catch(e) {}
           `,
         }} />
+        <script type="importmap" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          imports: {
+            "onnxruntime-web": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.21.0/dist/ort.bundle.min.mjs",
+            "onnxruntime-web/webgpu": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.21.0/dist/ort.webgpu.bundle.min.mjs",
+            "onnxruntime-web/wasm": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.21.0/dist/ort.wasm.bundle.min.mjs",
+          },
+        })}} />
       </head>
       <body className={inter.className}>
         <div className="flex min-h-screen flex-col">

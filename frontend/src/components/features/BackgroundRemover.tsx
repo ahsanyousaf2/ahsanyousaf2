@@ -10,29 +10,36 @@ export function BackgroundRemover() {
   const [inputPreview, setInputPreview] = useState<string | null>(null);
   const [resultUrl, setResultUrl] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [progress, setProgress] = useState<number | null>(null);
 
   const handleImageSelect = useCallback((file: File) => {
     setInputFile(file);
     setInputPreview(URL.createObjectURL(file));
     setResultUrl(null);
+    setProgress(null);
   }, []);
 
   const handleClear = useCallback(() => {
     setInputFile(null);
     setInputPreview(null);
     setResultUrl(null);
+    setProgress(null);
   }, []);
 
   const handleRemoveBackground = async () => {
     if (!inputFile) return;
     setIsProcessing(true);
+    setProgress(0);
     try {
-      const blob = await removeBackground(inputFile);
+      const blob = await removeBackground(inputFile, (loaded, total) => {
+        setProgress(Math.round((loaded / total) * 100));
+      });
       setResultUrl(URL.createObjectURL(blob));
     } catch (err: any) {
       alert(err.message);
     } finally {
       setIsProcessing(false);
+      setProgress(null);
     }
   };
 
@@ -66,9 +73,19 @@ export function BackgroundRemover() {
           <h3 className="text-lg font-semibold">Result</h3>
           <div className="flex min-h-[400px] items-center justify-center rounded-xl border-2 border-dashed border-[rgb(var(--border))] bg-[rgb(var(--muted))]/50">
             {isProcessing ? (
-              <div className="flex flex-col items-center gap-3">
+              <div className="flex flex-col items-center gap-3 px-4">
                 <Loader2 className="h-8 w-8 animate-spin text-primary-500" />
-                <p className="text-sm text-[rgb(var(--muted-foreground))]">Processing...</p>
+                <p className="text-sm text-[rgb(var(--muted-foreground))]">
+                  {progress !== null && progress < 100 ? "Downloading AI model..." : "Processing..."}
+                </p>
+                {progress !== null && (
+                  <div className="h-2 w-48 overflow-hidden rounded-full bg-[rgb(var(--muted))]">
+                    <div
+                      className="h-full rounded-full bg-primary-500 transition-all duration-300"
+                      style={{ width: `${Math.min(progress, 100)}%` }}
+                    />
+                  </div>
+                )}
               </div>
             ) : resultUrl ? (
               <img src={resultUrl} alt="Result" className="h-full w-full object-contain" />
