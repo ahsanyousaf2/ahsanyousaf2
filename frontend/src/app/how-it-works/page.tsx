@@ -44,12 +44,12 @@ export default function HowItWorksPage() {
       </div>
 
       <div className="mt-12 rounded-xl border bg-[rgb(var(--card))] p-8">
-        <h2 className="text-xl font-semibold">Technical Details</h2>
+        <h2 className="text-xl font-semibold">Guidelines</h2>
         <ul className="mt-4 space-y-3 text-sm text-[rgb(var(--muted-foreground))]">
-          <li><strong className="text-[rgb(var(--foreground))]">Service:</strong> Powered by remove.bg AI — industry-leading background removal technology</li>
-          <li><strong className="text-[rgb(var(--foreground))]">Speed:</strong> Typically processes in under 2 seconds for standard images</li>
-          <li><strong className="text-[rgb(var(--foreground))]">Formats:</strong> Input JPG/PNG/WEBP, output PNG with transparency</li>
-          <li><strong className="text-[rgb(var(--foreground))]">Limitations:</strong> Free tier includes 50 removals per month via remove.bg</li>
+          <li><strong className="text-[rgb(var(--foreground))]">Supported formats:</strong> JPG, PNG, WEBP</li>
+          <li><strong className="text-[rgb(var(--foreground))]">Max file size:</strong> 20MB per image</li>
+          <li><strong className="text-[rgb(var(--foreground))]">Output:</strong> Transparent PNG — ready to use</li>
+          <li><strong className="text-[rgb(var(--foreground))]">Best results:</strong> Images with a clear foreground subject against a contrasting background</li>
         </ul>
       </div>
 

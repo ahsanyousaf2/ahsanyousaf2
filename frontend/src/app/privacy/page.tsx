@@ -11,20 +11,14 @@ export default function PrivacyPage() {
         <section>
           <h2 className="text-xl font-semibold text-[rgb(var(--foreground))]">Data Processing</h2>
           <p className="mt-2">
-            When you upload an image, it is sent to our server and then forwarded to remove.bg
-            for AI background removal processing. Once processing is complete, the result is
-            returned to your browser. We do not permanently store your images on our servers.
+            When you upload an image, it is sent to our server for AI background removal processing.
+            Once processing is complete, the result is returned to your browser.
+            We do not permanently store your images on our servers.
           </p>
         </section>
 
         <section>
           <h2 className="text-xl font-semibold text-[rgb(var(--foreground))]">Third-Party Services</h2>
-          <p className="mt-2">
-            Background removal is powered by remove.bg (a Canva Austria GmbH brand).
-            Images are sent to remove.bg for processing and are subject to their privacy policy
-            and terms of service. We recommend reviewing remove.bg&apos;s privacy policy for details
-            on how they handle uploaded images.
-          </p>
           <p className="mt-2">
             This application is hosted on Vercel. Standard Vercel server logs may record
             anonymized request data (timestamps, paths, status codes) but not image contents.
@@ -54,7 +48,6 @@ export default function PrivacyPage() {
           <p className="mt-2">
             Uploaded images are temporarily held in memory during processing and are not written to
             disk. Processed results are sent back to your browser and are not retained on our servers.
-            remove.bg may retain images in accordance with their own data retention policy.
           </p>
         </section>
 

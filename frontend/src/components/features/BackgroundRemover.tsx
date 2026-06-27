@@ -4,14 +4,13 @@ import { useState, useCallback } from "react";
 import { ImageUploader } from "./ImageUploader";
 import { ProcessingResult } from "@/types";
 import { removeBackground, replaceBackground } from "@/lib/api";
-import { Loader2, Download, Check, Palette, Eye } from "lucide-react";
+import { Loader2, Download, Check, Palette } from "lucide-react";
 
 export function BackgroundRemover() {
   const [inputFile, setInputFile] = useState<File | null>(null);
   const [inputPreview, setInputPreview] = useState<string | null>(null);
   const [result, setResult] = useState<ProcessingResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [showCompare, setShowCompare] = useState(false);
   const [backgroundType, setBackgroundType] = useState<string>("none");
   const [bgColor, setBgColor] = useState("#000000");
 
@@ -41,11 +40,11 @@ export function BackgroundRemover() {
   };
 
   const handleReplaceBackground = async () => {
-    if (!inputFile) return;
+    if (!result) return;
     setIsProcessing(true);
     try {
       const hex = bgColor.replace("#", "");
-      const blob = await replaceBackground(inputFile, {
+      const blob = await replaceBackground(result.blob, {
         backgroundType,
         color: backgroundType === "color" ? {
           r: parseInt(hex.slice(0, 2), 16),
@@ -102,21 +101,11 @@ export function BackgroundRemover() {
               </div>
             ) : result ? (
               <div className="relative h-full w-full">
-                {showCompare && inputPreview ? (
-                  <div className="relative h-full w-full">
-                    <img src={inputPreview} alt="Original" className="h-full w-full object-contain" />
-                    <div className="absolute inset-0" style={{ clipPath: `inset(0 50% 0 0)` }}>
-                      <img src={result.url} alt="Result" className="h-full w-full object-contain" />
-                    </div>
-                    <div className="absolute inset-y-0 left-1/2 w-0.5 bg-white shadow-lg" />
-                  </div>
-                ) : (
-                  <img
-                    src={result.url}
-                    alt="Result"
-                    className="h-full w-full object-contain"
-                  />
-                )}
+                <img
+                  src={result.url}
+                  alt="Result"
+                  className="h-full w-full object-contain"
+                />
               </div>
             ) : (
               <div className="flex flex-col items-center gap-3 text-[rgb(var(--muted-foreground))]">
@@ -156,13 +145,6 @@ export function BackgroundRemover() {
                 <Download className="h-4 w-4" />
                 WEBP
               </button>
-              <button
-                onClick={() => setShowCompare(!showCompare)}
-                className="inline-flex items-center gap-2 rounded-lg border bg-[rgb(var(--card))] px-4 py-2.5 text-sm font-medium transition-colors hover:bg-[rgb(var(--muted))]"
-              >
-                <Eye className="h-4 w-4" />
-                {showCompare ? "Hide" : "Compare"}
-              </button>
             </>
           )}
         </div>
@@ -190,7 +172,7 @@ export function BackgroundRemover() {
             )}
             <button
               onClick={handleReplaceBackground}
-              disabled={!inputFile || isProcessing}
+              disabled={!result || isProcessing}
               className="inline-flex items-center gap-2 rounded-lg border bg-[rgb(var(--card))] px-4 py-2 text-sm font-medium transition-colors hover:bg-[rgb(var(--muted))] disabled:opacity-50"
             >
               Apply Background

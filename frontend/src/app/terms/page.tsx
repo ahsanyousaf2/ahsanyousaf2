@@ -20,8 +20,7 @@ export default function TermsPage() {
           <h2 className="text-xl font-semibold text-[rgb(var(--foreground))]">Use of Service</h2>
           <p className="mt-2">
             RemoveAnything AI is provided free of charge for personal and commercial use. You may use
-            the background removal tool for any lawful purpose. Background removal is powered by
-            remove.bg API; by using this service you also agree to remove.bg&apos;s terms of service.
+            the background removal tool for any lawful purpose.
           </p>
         </section>
 

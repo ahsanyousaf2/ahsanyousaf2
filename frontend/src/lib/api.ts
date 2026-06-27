@@ -51,19 +51,15 @@ export async function removeBackground(file: File): Promise<Blob> {
     return await removeBgViaServerApi(file);
   } catch (err: any) {
     console.error("removeBackground failed:", err);
-    throw new Error(
-      err.message.includes("remove.bg error")
-        ? `Background removal service error. Check that your API key is valid and the image format is supported. (${err.message})`
-        : err.message || "Failed to remove background. Please try again."
-    );
+    throw new Error(err.message || "Failed to remove background. Please try again.");
   }
 }
 
 export async function replaceBackground(
-  file: File,
+  source: File | Blob,
   options: { backgroundType: string; color?: { r: number; g: number; b: number }; blurStrength?: number }
 ): Promise<Blob> {
-  const noBg = await removeBackground(file);
+  const noBg = source instanceof File ? await removeBackground(source) : source;
   const bitmap = await createImageBitmap(noBg);
   const canvas = document.createElement("canvas");
   canvas.width = bitmap.width;

@@ -33,7 +33,7 @@ export function Footer() {
           <div>
             <h3 className="text-sm font-semibold">Tech</h3>
             <ul className="mt-4 space-y-2">
-              <li><span className="text-sm text-[rgb(var(--muted-foreground))]">Powered by remove.bg API</span></li>
+              <li><span className="text-sm text-[rgb(var(--muted-foreground))]">Built with Next.js</span></li>
               <li><span className="text-sm text-[rgb(var(--muted-foreground))]">AI Background Removal</span></li>
             </ul>
           </div>

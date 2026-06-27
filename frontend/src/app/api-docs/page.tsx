@@ -37,7 +37,7 @@ export default function ApiDocsPage() {
       <div className="mb-12">
         <h1 className="text-4xl font-bold">API Documentation</h1>
         <p className="mt-4 text-lg text-[rgb(var(--muted-foreground))]">
-          Server-side background removal API. Send an image, get back a transparent PNG.
+          Background removal API. Send an image, get back a transparent PNG.
         </p>
       </div>
 

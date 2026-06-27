@@ -15,7 +15,7 @@ const values = [
   {
     icon: Globe,
     title: "Powered by AI",
-    desc: "Uses remove.bg API for high-quality, production-grade background removal on any subject.",
+    desc: "Advanced AI technology delivers high-quality, production-grade background removal on any subject.",
   },
 ];
 
@@ -33,7 +33,7 @@ export default function AboutPage() {
           a portrait, a pet picture — and get a clean transparent-background PNG in seconds.
         </p>
         <p>
-          We use remove.bg AI under the hood to deliver professional-grade results without
+          Our AI technology delivers professional-grade results without
           requiring expensive software or technical skills. No signup, no credit card, no limits.
           Just upload and download.
         </p>

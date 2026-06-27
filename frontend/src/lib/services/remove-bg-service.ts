@@ -11,8 +11,7 @@ function mimeFromName(name: string): string {
 }
 
 /**
- * remove.bg implementation.
- * Docs: https://www.remove.bg/api
+ * Background removal service implementation.
  *
  * To swap to a self-hosted system in the future:
  * 1. Create a new class implementing BgRemoverService
@@ -24,7 +23,7 @@ export class RemoveBgService implements BgRemoverService {
   private endpoint = "https://api.remove.bg/v1.0/removebg";
 
   constructor(apiKey: string) {
-    if (!apiKey) throw new Error("RemoveBgService: missing API key");
+    if (!apiKey) throw new Error("Background removal service is not configured (missing API key)");
     this.apiKey = apiKey;
   }
 
@@ -51,7 +50,7 @@ export class RemoveBgService implements BgRemoverService {
     if (!res.ok) {
       const text = await res.text().catch(() => "unknown error");
       console.error(`[RemoveBgService] error ${res.status}:`, text);
-      throw new Error(`remove.bg error ${res.status}: ${text}`);
+      throw new Error(`Background removal service error (${res.status})`);
     }
 
     const result = await res.arrayBuffer();

@@ -5,7 +5,7 @@ import { getBgRemoverService } from "@/lib/services";
  * POST /api/remove-bg
  *
  * Accepts a multipart/form-data upload with an "image" field.
- * Proxies to the configured background-removal service and returns the PNG.
+ * Proxies to the background-removal service and returns the PNG.
  */
 export async function POST(req: NextRequest) {
   try {
