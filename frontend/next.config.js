@@ -3,8 +3,9 @@ const nextConfig = {
   images: {
     remotePatterns: [{ protocol: "https", hostname: "**" }],
   },
-  serverRuntimeConfig: {
-    // Max request body size for API routes (matches our 20MB frontend limit)
+  webpack: (config) => {
+    config.resolve.fallback = { ...config.resolve.fallback, fs: false };
+    return config;
   },
 };
 

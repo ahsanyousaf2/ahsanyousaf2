@@ -9,7 +9,7 @@ const features = [
   {
     icon: Zap,
     title: "AI Processing",
-    description: "Our AI automatically detects the subject and removes the background.",
+    description: "AI removes backgrounds in-browser. Your images stay on your device.",
   },
   {
     icon: Download,
@@ -23,8 +23,8 @@ const features = [
   },
   {
     icon: Shield,
-    title: "No Signup",
-    description: "No accounts, no credit cards, no limits. Just upload and download.",
+    title: "100% Private",
+    description: "Nothing is uploaded to any server. All processing is local.",
   },
 ];
 

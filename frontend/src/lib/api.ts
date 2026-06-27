@@ -1,56 +1,27 @@
 "use client";
 
-/**
- * Compress image to stay under Vercel's 4.5MB serverless body limit.
- * Resizes to max 2000px and JPEG 80% quality if needed.
- */
-async function compressForUpload(file: File): Promise<Blob> {
-  if (file.size < 4 * 1024 * 1024) return file;
+import { removeBackground as removeImgBg } from "@imgly/background-removal";
 
-  const bitmap = await createImageBitmap(file);
-  let { width, height } = bitmap;
-  const maxDim = 2000;
-  if (width > maxDim || height > maxDim) {
-    const scale = Math.min(maxDim / width, maxDim / height);
-    width = Math.round(width * scale);
-    height = Math.round(height * scale);
-  }
-
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext("2d")!;
-  ctx.drawImage(bitmap, 0, 0, width, height);
-  bitmap.close();
-
-  return new Promise((r) => canvas.toBlob((b) => r(b!), "image/jpeg", 0.8));
-}
-
-async function removeBgViaServerApi(file: File): Promise<Blob> {
-  const compressed = await compressForUpload(file);
-  const formData = new FormData();
-  // Use .jpg extension for compressed images (convert to JPEG), preserve original for uncompressed
-  const name = compressed === file ? file.name : file.name.replace(/\.[^.]+$/, ".jpg");
-  formData.append("image", compressed, name);
-
-  const res = await fetch("/api/remove-bg", {
-    method: "POST",
-    body: formData,
-  });
-
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({ error: res.statusText }));
-    throw new Error(body.error || `Server error ${res.status}`);
-  }
-
-  return res.blob();
-}
-
-export async function removeBackground(file: File): Promise<Blob> {
+export async function removeBackground(
+  file: File,
+  onProgress?: (loaded: number, total: number) => void
+): Promise<Blob> {
   try {
-    return await removeBgViaServerApi(file);
+    const blob = await removeImgBg(file, {
+      model: "medium",
+      progress: (key, current, total) => {
+        if (key === "model:download") {
+          onProgress?.(current, total);
+        }
+      },
+    });
+    return blob;
   } catch (err: any) {
     console.error("removeBackground failed:", err);
-    throw new Error(err.message || "Failed to remove background. Please try again.");
+    throw new Error(
+      err.message?.includes("WebGL")
+        ? "Your browser does not support WebGL. Please use a modern browser like Chrome, Firefox, or Edge."
+        : err.message || "Failed to remove background. Please try again."
+    );
   }
 }

@@ -11,9 +11,8 @@ export default function PrivacyPage() {
         <section>
           <h2 className="text-xl font-semibold text-[rgb(var(--foreground))]">Data Processing</h2>
           <p className="mt-2">
-            When you upload an image, it is sent to our server for AI background removal processing.
-            Once processing is complete, the result is returned to your browser.
-            We do not permanently store your images on our servers.
+            All image processing happens entirely in your browser. Your images are never uploaded to
+            any server. The AI model runs locally on your device using WebGL and WebAssembly.
           </p>
         </section>
 
@@ -22,6 +21,7 @@ export default function PrivacyPage() {
           <p className="mt-2">
             This application is hosted on Vercel. Standard Vercel server logs may record
             anonymized request data (timestamps, paths, status codes) but not image contents.
+            No third-party services process your images.
           </p>
         </section>
 
@@ -38,16 +38,15 @@ export default function PrivacyPage() {
           <h2 className="text-xl font-semibold text-[rgb(var(--foreground))]">Cookies</h2>
           <p className="mt-2">
             We use only essential cookies for theme preference storage (dark/light mode). No tracking
-            or third-party cookies are used. You can disable cookies in your browser settings, though
-            this may affect theme persistence.
+            or third-party cookies are used.
           </p>
         </section>
 
         <section>
           <h2 className="text-xl font-semibold text-[rgb(var(--foreground))]">Data Retention</h2>
           <p className="mt-2">
-            Uploaded images are temporarily held in memory during processing and are not written to
-            disk. Processed results are sent back to your browser and are not retained on our servers.
+            No images are stored on our servers. All processing is done locally in your browser,
+            and you control whether to download or discard the result.
           </p>
         </section>
 

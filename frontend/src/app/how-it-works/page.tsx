@@ -10,7 +10,7 @@ const steps = [
   {
     icon: Cpu,
     title: "2. AI Removes the Background",
-    desc: "Our AI-powered service analyzes the image, identifies the foreground subject, and removes the background with pixel-level precision.",
+    desc: "Our AI analyzes the image, identifies the foreground subject, and removes the background with pixel-level precision — all within your browser.",
   },
   {
     icon: Download,

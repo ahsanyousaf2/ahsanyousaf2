@@ -33,9 +33,9 @@ export default function AboutPage() {
           a portrait, a pet picture — and get a clean transparent-background PNG in seconds.
         </p>
         <p>
-          Our AI technology delivers professional-grade results without
-          requiring expensive software or technical skills. No signup, no credit card, no limits.
-          Just upload and download.
+          Our AI processes your images entirely in your browser — nothing is uploaded to any server.
+          Professional-grade results without expensive software or technical skills.
+          No signup, no credit card, no limits. Just upload and download.
         </p>
       </div>
 

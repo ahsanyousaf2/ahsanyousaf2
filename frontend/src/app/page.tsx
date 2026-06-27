@@ -19,7 +19,7 @@ const features = [
   {
     icon: Zap,
     title: "AI Removes Background",
-    desc: "Our AI detects the subject and removes the background in seconds.",
+    desc: "AI detects the subject and removes the background in seconds — all in your browser.",
   },
   {
     icon: Download,
@@ -28,8 +28,8 @@ const features = [
   },
   {
     icon: Shield,
-    title: "No Signup Required",
-    desc: "No accounts, no credit cards, no limits. Just upload and download.",
+    title: "100% Private",
+    desc: "Your images are processed locally on your device. Nothing is uploaded to any server.",
   },
   {
     icon: CheckCircle,
@@ -47,7 +47,7 @@ export default function Home() {
           <div className="mx-auto max-w-3xl text-center">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border bg-[rgb(var(--muted))] px-4 py-1.5 text-sm">
               <Sparkles className="h-4 w-4 text-primary-500" />
-              <span>Free AI Background Removal — No Signup Needed</span>
+              <span>Free AI Background Removal — 100% Private</span>
             </div>
             <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
               Remove Image Backgrounds{" "}
@@ -56,8 +56,8 @@ export default function Home() {
               </span>
             </h1>
             <p className="mt-6 text-lg leading-relaxed text-[rgb(var(--muted-foreground))]">
-              Professional-grade AI background removal. Fast, free, and no signup required.
-              Just upload your image and download the result.
+              AI-powered background removal that runs entirely in your browser.
+              Your images never leave your device. No signup required.
             </p>
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Link
@@ -136,7 +136,7 @@ export default function Home() {
           <div className="relative">
             <h2 className="text-3xl font-bold">Ready to remove backgrounds?</h2>
             <p className="mt-4 text-lg opacity-90">
-              No signup, no credit card, no limits. Start removing backgrounds right now.
+              No signup, no uploads, no limits. Your images stay private. Start removing backgrounds now.
             </p>
             <Link
               href="/dashboard"

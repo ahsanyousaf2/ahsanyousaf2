@@ -1,73 +1,79 @@
 "use client";
 
-import { Copy } from "lucide-react";
-import { useState } from "react";
+import { removeBackground } from "@/lib/api";
+import { useState, useRef } from "react";
+import { Loader2, Download, Copy } from "lucide-react";
 
-function CodeBlock({ code, language = "bash" }: { code: string; language?: string }) {
-  const [copied, setCopied] = useState(false);
+export default function ApiDocsPage() {
+  const [resultUrl, setResultUrl] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(code);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleRemove = async () => {
+    const file = fileRef.current?.files?.[0];
+    if (!file) return;
+    setIsProcessing(true);
+    try {
+      const blob = await removeBackground(file);
+      setResultUrl(URL.createObjectURL(blob));
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
-    <div className="group relative">
-      <div className="flex items-center justify-between rounded-t-lg bg-[rgb(var(--dark-700))] px-4 py-2 text-xs text-gray-400">
-        <span>{language}</span>
-        <button
-          onClick={handleCopy}
-          className="flex items-center gap-1.5 transition-colors hover:text-white"
-        >
-          <Copy className="h-3.5 w-3.5" />
-          {copied ? "Copied!" : "Copy"}
-        </button>
-      </div>
-      <pre className="overflow-x-auto rounded-b-lg bg-[rgb(var(--dark-800))] p-4 text-sm text-gray-300">
-        <code>{code}</code>
-      </pre>
-    </div>
-  );
-}
-
-export default function ApiDocsPage() {
-  return (
     <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
       <div className="mb-12">
-        <h1 className="text-4xl font-bold">API Documentation</h1>
+        <h1 className="text-4xl font-bold">API</h1>
         <p className="mt-4 text-lg text-[rgb(var(--muted-foreground))]">
-          Background removal API. Send an image, get back a transparent PNG.
+          Background removal runs entirely in your browser. Import the function and use it directly.
         </p>
       </div>
 
-      <div className="space-y-8">
-        <div className="rounded-xl border bg-[rgb(var(--card))] p-6">
-          <h3 className="mb-4 text-lg font-semibold">Remove Background</h3>
-          <CodeBlock
-            code={`curl -X POST https://your-site.com/api/remove-bg \\
-  -F "image=@photo.jpg" \\
-  -o result.png`}
-            language="bash"
+      <div className="rounded-xl border bg-[rgb(var(--card))] p-6">
+        <h3 className="mb-4 text-lg font-semibold">Usage</h3>
+        <pre className="overflow-x-auto rounded-lg bg-gray-900 p-4 text-sm text-gray-300">
+          <code>{`import { removeBackground } from "@/lib/api";
+
+const file = event.target.files[0];
+const blob = await removeBackground(file);
+const url = URL.createObjectURL(blob);`}</code>
+        </pre>
+      </div>
+
+      <div className="mt-8 rounded-xl border bg-[rgb(var(--card))] p-6">
+        <h3 className="mb-4 text-lg font-semibold">Try It</h3>
+        <div className="flex flex-wrap items-center gap-3">
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            className="text-sm"
           />
+          <button
+            onClick={handleRemove}
+            disabled={isProcessing}
+            className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-primary-600 to-purple-600 px-4 py-2 text-sm font-medium text-white shadow-lg transition-all hover:from-primary-500 hover:to-purple-500 disabled:opacity-50"
+          >
+            {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+            Remove Background
+          </button>
         </div>
-
-        <div className="rounded-xl border bg-[rgb(var(--card))] p-6">
-          <h3 className="mb-4 text-lg font-semibold">JavaScript</h3>
-          <CodeBlock
-            code={`const file = event.target.files[0];
-const form = new FormData();
-form.append("image", file);
-
-const res = await fetch("/api/remove-bg", {
-  method: "POST",
-  body: form,
-});
-
-const blob = await res.blob();`}
-            language="typescript"
-          />
-        </div>
+        {resultUrl && (
+          <div className="mt-4">
+            <img src={resultUrl} alt="Result" className="max-h-64 rounded-lg object-contain" />
+            <a
+              href={resultUrl}
+              download="removed-bg.png"
+              className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-primary-500 hover:text-primary-400"
+            >
+              <Download className="h-4 w-4" />
+              Download PNG
+            </a>
+          </div>
+        )}
       </div>
     </div>
   );

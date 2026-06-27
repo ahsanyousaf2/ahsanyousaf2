@@ -8,7 +8,7 @@ export default function DashboardPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold">Background Remover</h1>
         <p className="mt-2 text-[rgb(var(--muted-foreground))]">
-          Upload an image and our AI will remove the background in seconds
+          Upload an image and AI removes the background in seconds — entirely in your browser
         </p>
       </div>
       <BackgroundRemover />
